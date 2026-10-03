@@ -82,6 +82,7 @@ under construction since march
         <a class="navlink" data-nav href="puzzles.html">&#9654; PUZZLES</a>
         <a class="navlink" data-nav href="games.html">&#9654; GAMES</a>
         <a class="navlink" data-nav href="flash.html">&#9654; FLASH GAMES</a>
+        <a class="navlink" data-nav href="news.html">&#9654; FUNNYNEWS</a>
         <a class="navlink" data-nav href="music.html">&#9654; TOP 8 SONGS</a>
         <div class="navhead">MISC</div>
         <a class="navlink" data-nav href="guestbook.html">&#9654; GUESTBOOK</a>
@@ -1080,10 +1081,15 @@ page("about.html", "ABOUT - funnysite",
         <p style="margin:4px 0">This website is a <b>brain dump</b>. That is a technical
         term that I made up, and the technical term is: I have a thought, the thought is
         not going anywhere, so I am putting it here where it can live.</p>
-        <p style="margin:4px 0">There are 25 pages. About 60% of them are games. The games
+        <p style="margin:4px 0">There are 99 pages. About 20% of them are games. The games
         work. All of them. I tested them. I tested them by letting my friends play them and
         then saying "did you finish?" and they said "no" and I said "ok" and that was the
         QA process.</p>
+        <p style="margin:4px 0">75 of the 99 are <a href="news.html">FUNNYNEWS</a>, a newspaper
+        that covers five years of real events and has a comment section on every story. The
+        events are real. The dates are right. Everything after the third paragraph is me, and
+        I put exactly one joke in each story, which is more restraint than the comment
+        sections demonstrate.</p>
         <p style="margin:4px 0">I do not know who I am trying to reach. That is not a
         <i>bit</i>, that is a genuine administrative problem I have had since 2001.</p>
       </div>
@@ -1110,12 +1116,12 @@ page("about.html", "ABOUT - funnysite",
 
       <h2>THINGS HIDDEN IN HERE</h2>
       <div class="sunken" style="padding:8px">
-        <p class="small" style="margin:4px 0">There are <b>33</b> of them. You have found
+        <p class="small" style="margin:4px 0">There are <b>34</b> of them. You have found
         <b><span data-eggnum>0</span></b> so far, which is more than i expected from a person
         and less than i will admit to in public.</p>
         <p class="small" style="margin:4px 0">I am not going to tell you how to find them,
         because that would turn them into a list, and a list is just this page with the mystery
-        removed. Three of the 33 are real things that happen to the world. The other 30 are me.
+        removed. Three of the 34 are real things that happen to the world. The other 31 are me.
         <span class="gray">(there is a difference and you can feel it but you cannot prove it.)</span></p>
         <p class="small" style="margin:4px 0">One of them is a key above the tab key. One of them
         only works if you have already found another one. One of them is on the page you are
@@ -1184,7 +1190,7 @@ page("secrets.html", "SECRETS - funnysite",
           your browser history, there is nobody here, and the counter starts at 000001 again, and
           that is a little sad.</li>
 
-          <li>All 25 pages use the same navigation. I typed it out 25 times. I did not fix it
+          <li>All 99 pages use the same navigation. I typed it out once, in a python file, which is the single greatest personal achievement of my career and nobody has noticed. I did not fix it
           when I added the games section. <b>There are 6 pages with a link to a page that doesn't
           exist.</b> They are 404s. Nobody has ever clicked them. I know this because I checked
           the 404 page's counter. It's 1. That's me.</li>
@@ -1201,7 +1207,7 @@ page("secrets.html", "SECRETS - funnysite",
 
           <li class="mono" style="color:#cc0000">0200 0400 0500 0600 &mdash; if you can read this without using a tool, you have wasted 4 of your 5 brain cells. good for you.</li>
 
-          <li style="color:#ffaa00">There are 33 easter eggs on this website and this page has
+          <li style="color:#ffaa00">There are 34 easter eggs on this website and this page has
           not mentioned them once, which is the single hardest thing on here to do and i did it
           for two years. <a href="eggs.html">The log is here</a>. You have found
           <b data-eggnum>0</b>. That number is real. Nothing else on this site is.</li>
@@ -1308,7 +1314,7 @@ page("eggs.html", "THE EGG LOG - funnysite",
       <h2>GIVE UP</h2>
       <div class="sunken" style="padding:8px">
         <p class="note" style="margin:0 0 6px 0">there is a button. it does what it says.</p>
-        <p class="center" style="margin:0"><button class="btn2000" id="eggs-giveup">MARK ALL 33 AS FOUND</button></p>
+        <p class="center" style="margin:0"><button class="btn2000" id="eggs-giveup">MARK ALL 34 AS FOUND</button></p>
         <div class="tiny gray center" style="margin-top:6px">it marks them. it does not find them. those are different verbs.</div>
       </div>
 

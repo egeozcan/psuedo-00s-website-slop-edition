@@ -168,7 +168,7 @@ var FS = (function () {
   /* ==========================================================================
      THE EGG SYSTEM
      ==========================================================================
-     33 of them. 3 are real. the rest are load-bearing.
+     34 of them. 3 are real. the rest are load-bearing.
 
      unlock(id) is the only way in. it records the find, makes a noise,
      puts a banner up for 4 seconds, and then gets out of your way.
@@ -204,6 +204,7 @@ var FS = (function () {
     ["arcade",        "ALL NINE GAMES",           "you played them. all of them. including the worm. including the one in 3d that i said i was not ready to show you."],
     ["meta",          "META",                      "ten of them. you are not looking for a page any more. you are reading a website."],
     ["goose-friend",  "HE LIKES YOU",              "ten pokes. the goose sat down. that is what sitting down means. that is what it means now."],
+    ["comment-section","PENDING MODERATION","you wrote a comment on a newspaper that never existed, about something that did, and it was saved on your own hard drive where nobody will ever read it, including you. it is the most honest comment section on the internet. it is also the only one."],
     ["flash",         "THE FLASH ERA",            "you played all twelve of them. not the button that says so - the button is still there and it still does nothing. you played them. i have never done that either, and i wrote them."],
     ["raycaster",     "I WAS NOT READY",          "you finished the 3d one. on the arcade page i wrote that i wrote a raycaster, that it worked, and that i was not ready to show you. i was not ready. you played it anyway. that is the review of this website."],
     ["im-here",       "THERE IS NO FINAL EGG",    "one left. it is this one, and it does not lead anywhere. that is the joke. that was always the joke."],
@@ -890,7 +891,7 @@ var FS = (function () {
     "secrets.html", "404.html", "eggs.html", "goose.html",
     "game-maze.html", "game-mines.html", "game-memory.html", "game-reaction.html",
     "game-sliding.html", "game-hanoi.html", "game-mind.html", "game-worm.html",
-    "game-3d.html", "flash.html"
+    "game-3d.html", "flash.html", "news.html"
   ];
   var GAME_KEYS = ["funnysite.maze", "funnysite.mines", "funnysite.memory",
                    "funnysite.react", "funnysite.slide", "funnysite.hanoi",

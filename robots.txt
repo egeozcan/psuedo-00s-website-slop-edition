@@ -7,6 +7,7 @@ Disallow: /game-mind.html
 Disallow: /eggs.html
 Disallow: /goose.html
 Allow: /
+# the newspaper is allowed. the comments are not a thing robots can read anyway.
 
 # the secret page is disallowed. it is one click away in the marquee.
 # the mind reader is disallowed because it already knows what you want.
@@ -19,4 +20,4 @@ Disallow: /
 
 # i don't know what a bad bot is but it sounds like a bad bot
 
-Sitemap: none. i have 23 pages. a sitemap would be showing off.
+Sitemap: none. i have 99 pages. a sitemap would be showing off.

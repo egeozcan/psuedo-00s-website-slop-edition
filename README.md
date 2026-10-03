@@ -2,7 +2,9 @@
 
 A website. On the internet. About stuff.
 
-24 hand-built pages, early-2000s aesthetic, zero dependencies, zero frameworks.
+99 pages, early-2000s aesthetic, zero dependencies, zero frameworks.
+24 of them are hand-written. 75 of them are a newspaper that covers five real years and
+comments on itself.
 The arcade has a 3D one in it now (1 file, 0 libraries, it surprised me too)
 and a whole Flash-era wing: twelve tiny games in one file, in a portal.
 Everything works, including the parts that were jokes.
@@ -51,7 +53,7 @@ nicer because the counter lies less over http.)
 | `theweb.html` | a webring that is 78% dead, real links, blinkies |
 | `about.html` | colophon, FAQ, and a list of what this site is not |
 | `secrets.html` | not in the menu. also not a secret. |
-| `eggs.html` | not in the menu. 33 things you have found, and the ones you have not |
+| `eggs.html` | not in the menu. 34 things you have found, and the ones you have not |
 | `goose.html` | not in the menu. the goose |
 | `404.html` | a lost page with a small room and snacks |
 
@@ -64,7 +66,7 @@ nicer because the counter lies less over http.)
 
 ## The eggs
 
-There are **33**. They all live in `common.js` and they all end up in one place:
+There are **34**. They all live in `common.js` and they all end up in one place:
 the log at `eggs.html`, which is not in any menu.
 
 Some of them take four seconds. Some of them require you to play nine games, or
@@ -100,11 +102,14 @@ typing the same sidebar 21 times like a 2004 person would have to:
 ```sh
 python3 _build/games.py     # stamps all 23 pages (imports build.py)
 python3 _build/maps.py      # re-checks the raycaster's 6 hand-drawn maps
+python3 _build/news.py      # stamps 75 newspaper pages (it overwrites itself, it is fine)
 python3 _build/make_favicon.py   # rewrites favicon.gif, byte by byte
 ```
 
 Edit the page content in `_build/build.py` and `_build/games.py`, then re-run.
-`game-3d.js` and `flash.js` are hand-written like `common.js` — the page just points at it. The six
+`game-3d.js` and `flash.js` are hand-written like `common.js`.
+`_build/news.py` holds FUNNYNEWS: 72 stories, 56 commenters, a pool of comment bodies that
+gets dealt out so the same rant does not appear under two different wars. — the page just points at it. The six
 levels in it were drawn in `_build/maps.py`, which checks every row is 27 characters
 wide, BFS-checks that you can actually walk to the exit pad, and complains loudly if a
 locked door has its own key behind it.

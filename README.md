@@ -8,7 +8,15 @@ and a whole Flash-era wing: twelve tiny games in one file, in a portal.
 Everything works, including the parts that were jokes.
 Including the parts that were jokes about the parts that were jokes.
 
-## Run it
+## It is online
+
+**https://egeozcan.github.io/psuedo-00s-website-slop-edition/**
+
+that link is this repository, served by GitHub Pages, because it is 24 html
+files that all point at each other with relative paths and therefore work
+anywhere a file can live. the games work there too. they were tested there.
+
+## Run it yourself
 
 ```sh
 python3 -m http.server 8848

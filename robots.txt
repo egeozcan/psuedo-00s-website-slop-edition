@@ -1,0 +1,22 @@
+# robots.txt for funnysite
+# last updated 2004, refreshed never
+
+User-agent: *
+Disallow: /secrets.html
+Disallow: /game-mind.html
+Disallow: /eggs.html
+Disallow: /goose.html
+Allow: /
+
+# the secret page is disallowed. it is one click away in the marquee.
+# the mind reader is disallowed because it already knows what you want.
+# the other two are disallowed because i put them in here, and a file that
+# lists every page on the site is just a menu with extra steps. i know.
+# you were not supposed to read robots.txt. you were supposed to find things.
+
+User-agent: BadBot
+Disallow: /
+
+# i don't know what a bad bot is but it sounds like a bad bot
+
+Sitemap: none. i have 23 pages. a sitemap would be showing off.

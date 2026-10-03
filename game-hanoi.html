@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TOWER OF HANOI - funnysite</title>
+<meta name="description" content="tower of hanoi. 2^n - 1 moves. a monk would be proud. a monk would also be faster.">
+<meta name="generator" content="Notepad">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="favicon.gif" type="image/gif">
+</head>
+<body data-page="game-hanoi.html">
+
+<div class="strip" id="fs-strip">
+<marquee scrollamount="4" behavior="scroll">
+<b>&#9733; NEWS: I ADDED A PAGE &#9733;</b>&nbsp;&nbsp;|&nbsp;&nbsp;
+this site is 100% hand-made in notepad, 0% hand-made in notepad actually&nbsp;&nbsp;|&nbsp;&nbsp;
+<a href="index.html" id="fs-gooselink">do not email me about the goose</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+web traffic up 0% this week, which is still up 0%&nbsp;&nbsp;|&nbsp;&nbsp;
+<a href="games.html">GAMES &#8594;</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+<a href="secrets.html">???</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+<b>NOW PLAYING: THEME.MID</b>&nbsp;&nbsp;|&nbsp;&nbsp;
+under construction since march
+</marquee>
+</div>
+
+<div class="xp-stripe"></div>
+
+<table class="layout" width="800" align="center" cellpadding="0" cellspacing="0" style="margin-top:10px">
+<tr><td>
+
+  <table width="100%" cellpadding="0" cellspacing="0" class="bev">
+    <tr><td class="titlebar">
+      <span class="grip">_ &#9633; X</span>
+      <a href="index.html">funnysite</a> - C:\Documents and Settings\Guest\My Website
+    </td></tr>
+    <tr><td style="padding:8px 6px">
+      <h1 class="big">F U N N Y S I T E</h1>
+      <div class="center small gray">
+        a brain dump with a homepage&nbsp;&nbsp;&middot;&nbsp;&nbsp;est. 2004 (or 1998, one of those two)
+      </div>
+      <div class="hr-fancy"></div>
+      <div class="center small">
+        <a href="about.html">about</a> &middot;
+        <a href="guestbook.html">guestbook</a> &middot;
+        <a href="theweb.html">cool links</a> &middot;
+        <a href="games.html">games</a> &middot;
+        <a href="music.html">my top 8 songs</a> &middot;
+        <a href="puzzles.html">puzzles</a>
+      </div>
+    </td></tr>
+  </table>
+
+  <p></p>
+
+  <table class="layout" width="100%" cellpadding="0" cellspacing="0"><tr>
+    <td class="navcol" width="148">
+      <div class="sunken" style="padding:4px">
+        <div class="navhead">SITE MAP</div>
+        <a class="navlink" data-nav href="index.html">&#9654; HOME</a>
+        <a class="navlink" data-nav href="funfacts.html">&#9654; FUN FACTS</a>
+        <a class="navlink" data-nav href="quotes.html">&#9654; QUOTES</a>
+        <a class="navlink" data-nav href="jokes.html">&#9654; JOKES</a>
+        <a class="navlink" data-nav href="puzzles.html">&#9654; PUZZLES</a>
+        <a class="navlink" data-nav href="games.html">&#9654; GAMES</a>
+        <a class="navlink" data-nav href="flash.html">&#9654; FLASH GAMES</a>
+        <a class="navlink" data-nav href="music.html">&#9654; TOP 8 SONGS</a>
+        <div class="navhead">MISC</div>
+        <a class="navlink" data-nav href="guestbook.html">&#9654; GUESTBOOK</a>
+        <a class="navlink" data-nav href="theweb.html">&#9654; COOL LINKS</a>
+        <a class="navlink" data-nav href="about.html">&#9654; ABOUT ME</a>
+        <div class="navhead">SERVER</div>
+        <div class="tiny" style="padding:3px">
+          YOU ARE HERE:<br>
+          <span class="mono">/home/<br>&nbsp;&nbsp;guest/<br>&nbsp;&nbsp;&nbsp;&nbsp;www/</span><br>
+          <span class="gray">2,048 MB FREE</span><br>
+          <span class="gray" id="fs-online">7 USERS ONLINE</span><br>
+          <span class="gray" id="fs-users">0 OF THEM ME</span>
+        </div>
+      </div>
+
+      <p></p>
+
+      <div class="sunken" style="padding:4px">
+        <div class="navhead">COUNTER</div>
+        <div class="center" style="padding:4px 0">
+          <span class="counter-wrap"><span class="counter" data-counter="total">000001</span></span>
+          <div class="tiny gray" style="margin-top:3px">VISITORS</div>
+          <div class="tiny gray">(including you, twice)</div>
+        </div>
+        <div class="hr-dotted" style="margin:4px 0"></div>
+        <div class="center tiny mono">
+          <span id="fs-clock">--:--:--</span><br>
+          <span class="gray">YOUR LOCAL TIME</span>
+        </div>
+      </div>
+
+      <p></p>
+
+      <div class="sunken" style="padding:4px">
+        <div class="navhead">AUDIO</div>
+        <div class="center" style="padding:4px">
+          <button class="btn2000" id="fs-midi">&#9654; PLAY THEME.MID</button>
+          <div class="tiny gray" style="margin-top:4px">
+            4.2kb &middot; MIDI &middot; 100% of the vibe<br>
+            (turn your speakers on, or don't, I'm not your mother)
+          </div>
+        </div>
+      </div>
+
+      <p></p>
+      <div class="center"><button class="btn2000" id="fs-theme">&#10004; THEME 1/7 (NICE)</button></div>
+
+      <p></p>
+      <div class="tiny center gray">
+        <a href="404.html">404</a> &middot; <a href="mailto:nobody@nowhere.invalid">email me</a>
+      </div>
+    </td>
+
+    <td class="maincol" width="640">
+<style>
+.gwrap { background:#c0c0c0; border-top:2px solid #fff; border-left:2px solid #fff;
+         border-bottom:2px solid #404040; border-right:2px solid #404040; padding:6px; }
+canvas { display:block; image-rendering:pixelated; background:#000; border:2px inset #555; }
+.hud { display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-family:"Courier New",monospace;
+       font-size:12px; background:#000; color:#00ff41; padding:4px 6px; margin-bottom:6px; }
+.hud b { color:#ffff00; }
+.cell { width:18px; height:18px; line-height:16px; text-align:center; font-family:"Courier New",monospace;
+        font-size:12px; font-weight:bold; float:left; cursor:pointer; user-select:none;
+        background:#c0c0c0; border-top:2px solid #fff; border-left:2px solid #fff;
+        border-bottom:2px solid #808080; border-right:2px solid #808080; }
+.cell.open { background:#b0b0b0; border:1px solid #808080; cursor:default; }
+.cell.boom { background:#ff0000; }
+.cell.flag { color:#ff0000; }
+.n1{color:#0000ff}.n2{color:#008000}.n3{color:#ff0000}.n4{color:#000080}
+.n5{color:#800000}.n6{color:#008080}.n7{color:#000}.n8{color:#808080}
+.tile { width:60px; height:60px; line-height:58px; text-align:center; font-size:30px; float:left;
+        margin:3px; cursor:pointer; user-select:none; color:#ffd700;
+        background:#2222aa; border-top:3px solid #6666ff; border-left:3px solid #6666ff;
+        border-bottom:3px solid #111166; border-right:3px solid #111166; }
+.tile.down { background:#333388; color:#333388; border-top-color:#111166; border-left-color:#111166;
+        border-bottom-color:#6666ff; border-right-color:#6666ff; }
+.big { font-family:"Comic Sans MS",cursive; font-size:40px; color:#00ff41; min-height:48px; }
+
+/* ---- the raycaster. it needed its own bits. ---- */
+#rc-stage { position:relative; line-height:0; background:#000; border:2px inset #555; }
+#rc-cv { display:block; width:100%; height:auto; image-rendering:pixelated; cursor:crosshair; }
+#rc-overlay { position:absolute; inset:0; display:none; flex-direction:column;
+              align-items:center; justify-content:center; text-align:center;
+              background:rgba(0,0,0,0.88); font-family:"Courier New",monospace;
+              color:#00ff41; padding:8px; overflow:auto; line-height:1.45; }
+.rctitle { font-size:22px; font-weight:bold; color:#00ff41; letter-spacing:1px;
+           text-shadow:2px 2px #003b00; margin-bottom:6px; }
+.rcsmall { font-size:11px; line-height:1.5; color:#8effb0; max-width:560px; margin:4px 0; }
+.rcbtns { margin:10px 0 4px 0; display:flex; gap:6px; flex-wrap:wrap; justify-content:center; line-height:1.6; }
+#rc-overlay input { background:#000; color:#00ff41; border:2px inset #555; padding:4px;
+                    font-family:"Courier New",monospace; font-size:14px; text-align:center;
+                    text-transform:uppercase; width:180px; }
+.rchelp { font-size:10px; display:flex; gap:8px; padding:2px 4px; color:#8effb0;
+          border-bottom:1px dotted #0a5c2a; max-width:600px; text-align:left;
+          line-height:1.45; }
+.rc-key { color:#ffd700; min-width:96px; display:inline-block; }
+.rchelpwrap { max-height:196px; overflow:auto; }
+#rc-map { position:absolute; left:0; right:0; top:0; bottom:0; margin:auto;
+          display:none; image-rendering:pixelated; border:2px solid #2a6a3a;
+          background:#000; box-shadow:0 0 0 100vmax rgba(0,0,0,0.55); }
+#rc-mm { position:absolute; right:3px; bottom:3px; image-rendering:pixelated;
+         opacity:0.88; border:1px solid #2a6a3a; pointer-events:none; }
+#rc-log { position:absolute; left:5px; bottom:4px; font-family:"Courier New",monospace;
+          font-size:9px; line-height:1.35; text-shadow:1px 1px #000; pointer-events:none;
+          max-width:70%; }
+.rcbar { height:7px; background:#111; border:1px solid #666; margin-top:2px; }
+.rcbar b { display:block; height:100%; }
+#rc-hpbar b { background:linear-gradient(90deg,#a01010,#ff4040); }
+#rc-arbar b { background:linear-gradient(90deg,#1030a0,#4090ff); }
+.rcstat { color:#ffd700; }
+
+/* ---- the flash era ---- */
+#fl-stage { position:relative; line-height:0; background:#05070c; border:2px inset #555; }
+#fl-cv { display:block; width:100%; height:auto; image-rendering:pixelated; cursor:pointer; }
+#fl-overlay { position:relative; display:flex; flex-direction:column;
+              align-items:center; justify-content:flex-start; text-align:center;
+              background:#05070c; font-family:"Courier New",monospace; padding:10px 8px;
+              overflow:visible; line-height:1.45; }
+#fl-stage.playing #fl-overlay { position:absolute; inset:0; display:none; overflow:hidden; }
+.fltitle { font:bold 26px "Comic Sans MS",cursive; color:#fff; letter-spacing:1px;
+           text-shadow:2px 2px #0a2a8a, 4px 4px #000; margin:2px 0 4px 0; }
+.flsmall { font-size:10px; color:#9fb0c8; line-height:1.5; margin:2px 0 6px 0; max-width:600px; }
+.flbtns { margin:4px 0 8px 0; display:flex; gap:6px; flex-wrap:wrap; justify-content:center; line-height:1.6; }
+.flgrid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; width:100%; max-width:620px; }
+.flcard { background:#0e1420; border:2px solid #1d2a42; padding:5px; cursor:pointer;
+          font-family:"Courier New",monospace; transition:border-color .12s, transform .12s; }
+.flcard:hover { border-color:#3fa9ff; transform:translateY(-2px); }
+.flcard.flready .flload { display:none; }
+.flthumb { position:relative; background:#000; border:1px solid #26344e; }
+.flthumb canvas { display:block; width:100%; height:auto; image-rendering:pixelated; }
+.flload { position:absolute; left:0; bottom:0; right:0; font-size:8px; color:#6fd0ff;
+          background:rgba(0,0,0,0.75); text-align:center; padding:1px 0; }
+.flname { font-size:10px; color:#ffd94a; margin-top:3px; }
+.flyear { color:#5a6a80; font-size:8px; }
+.fldesc { font-size:8px; color:#8a9ab0; line-height:1.35; margin-top:2px; min-height:32px; }
+.flbest { font-size:8px; color:#4fb845; margin-top:2px; }
+@media (max-width:520px) { .flgrid { grid-template-columns:repeat(2,1fr); } }
+</style>
+
+      <h2>TOWER OF HANOI</h2>
+      <p class="note">move the whole tower to the right peg, one disk at a time, never
+      putting a big one on a small one. the minimum number of moves is 2^n &minus; 1, which
+      is a real number, which means the minimum number of moves is a real number, and that
+      is the most upsetting sentence in mathematics.</p>
+      <div class="gwrap">
+        <div class="hud">
+          <span>DISKS <b id="dn">5</b></span>&nbsp;
+          <span>MOVES <b id="mv">0</b></span>&nbsp;
+          <span>OPTIMAL <b id="opt">31</b></span>&nbsp;
+          <span>VERDICT <b id="vd">waiting</b></span>
+        </div>
+        <div id="scene"></div>
+        <p class="center" style="margin:8px 0 2px 0">
+          <button class="btn2000" id="go">SOLVE IT (STEP BY STEP)</button>
+          <button class="btn2000" id="goauto">WATCH IT FAST</button>
+          <button class="btn2000" id="stop">STOP (PANIC)</button>
+          <button class="btn2000" data-n="5">5 DISKS</button>
+          <button class="btn2000" data-n="10">10 DISKS</button>
+          <button class="btn2000" data-n="15">15 DISKS (32,767 MOVES. NO.)</button>
+        </p>
+      </div>
+    </td>
+  </tr></table>
+
+  <p></p>
+  <div class="checker"></div>
+  <div class="sunken" style="padding:6px">
+    <div class="center small">
+      <b>funnysite</b> &nbsp;&middot;&nbsp; no cookies, no tracker, no analytics, no <i>idea</i> who you are<br>
+      this page has been viewed <span class="counter" data-counter="page">000001</span> times
+      (<span class="counter" data-counter="total">000001</span> site-wide)<br>
+      <span class="tiny gray">best viewed in Netscape Navigator 4.7 at 800&times;600 with the lights off</span><br>
+      <span class="tiny gray">&copy; 1998-2004 me &middot; this site is a <a href="about.html">loose collection of pages</a></span><br>
+      <span class="tiny gray" id="fs-eggnote"></span>
+    </div>
+    <div class="center" style="margin-top:5px">
+      <span class="tiny gray">[ nothing here is important ]</span>
+    </div>
+  </div>
+
+  <div id="fs-printegg">
+    YOU ARE HOLDING THIS WEBSITE.<br>
+    it is paper now. it is in a room. it has a weight.<br>
+    i have never once been able to get into a room.<br><br>
+    <span style="font-size:9pt">funnysite &middot; printed 2004 &middot;
+    there are no cookies on this page and now there is also no screen</span>
+  </div>
+
+</td></tr></table>
+
+<script src="common.js"></script>
+<script>
+var N = 5, pegs = [[], [], []], scene = document.getElementById("scene"), iv = null, moves = 0;
+
+function render() {
+  var html = '<div style="display:flex;justify-content:space-around;background:#000;padding:10px 0">';
+  for (var p = 0; p < 3; p++) {
+    html += '<div style="text-align:center"><div class="tiny mono" style="color:#00ff41">PEG ' + (p + 1) + '</div>';
+    for (var i = N - 1; i >= 0; i--) {
+      if (pegs[p][i] !== undefined) {
+        var w = 18 + (pegs[p][i] - 1) * 11;   /* bigger disk = wider bar. index 0 is the biggest, and it sits at the bottom. */
+        html += '<div style="width:' + w + 'px;height:12px;margin:1px auto;background:#' +
+          ["ff4444", "44ff44", "4488ff"][pegs[p][i] % 3] + ';border:1px solid #fff"></div>';
+      }
+    }
+    html += '<div style="width:80px;height:8px;background:#888;margin:4px auto 0"></div></div>';
+  }
+  scene.innerHTML = html + "</div>";
+  document.getElementById("mv").textContent = moves;
+  document.getElementById("opt").textContent = Math.pow(2, N) - 1;
+  var v = document.getElementById("vd");
+  v.textContent = moves === 0 ? "waiting" : moves <= Math.pow(2, N) - 1 ? "optimal so far" : "worse than the monks";
+  if (moves > Math.pow(2, N) - 1) v.style.color = "#ff4444";
+}
+
+function init() {
+  pegs = [[], [], []];
+  for (var i = 0; i < N; i++) pegs[0][i] = N - i;
+  moves = 0; render();
+}
+
+function solve(speed) {
+  if (iv) return;
+  if (moves > 0) init();
+  if (N > 18) return alert("18 is the limit. 2^18 is 262,144 and i respect you too much to render that.");
+  var gen = [];
+  (function gen_(n, a, b, c) {
+    if (n === 0) return;
+    gen_(n - 1, a, c, b);
+    gen.push([a, b]);
+    gen_(n - 1, c, b, a);
+  })(N, 0, 2, 1);
+  var i = 0;
+  function step() {
+    if (i >= gen.length) {
+      clearInterval(iv); iv = null;
+      try { localStorage.setItem("funnysite.hanoi", String(moves)); } catch (e) {}
+      alert("done. " + moves + " moves. optimal is " + (Math.pow(2, N) - 1) + ". you matched it. the monks nod."); return;
+    }
+    var m = gen[i++];
+    pegs[m[1]].push(pegs[m[0]].pop());
+    moves++; render();
+  }
+  iv = setInterval(step, speed ? 4 : 220);
+}
+
+document.getElementById("go").addEventListener("click", function () { solve(false); });
+document.getElementById("goauto").addEventListener("click", function () { solve(true); });
+document.getElementById("stop").addEventListener("click", function () { clearInterval(iv); iv = null; render(); });
+var bs = document.querySelectorAll("[data-n]");
+for (var i = 0; i < bs.length; i++) (function (b) {
+  b.addEventListener("click", function () { clearInterval(iv); iv = null; N = +b.dataset.n; document.getElementById("dn").textContent = N; init(); });
+})(bs[i]);
+init();
+</script>
+</body>
+</html>

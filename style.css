@@ -1,0 +1,554 @@
+/* ==========================================================================
+   style.css  --  thefunnysite  --  "cyber-seal" template
+   Hand-coded in Notepad. Do not reformat. The tabs are load-bearing.
+   Last updated: 2004-02-11 (or whenever the microwave beeped)
+   ========================================================================== */
+
+/* --- the wallpaper ------------------------------------------------------ */
+body {
+  background-color: #14142b;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect width='16' height='16' fill='%2314142b'/%3E%3Crect width='8' height='8' fill='%232a2a52'/%3E%3Crect x='8' y='8' width='8' height='8' fill='%232a2a52'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+  font-family: Tahoma, Verdana, Geneva, sans-serif;
+  font-size: 12px;
+  color: #000000;
+}
+
+a { color: #0000ee; }
+a:visited { color: #551a8b; }
+a:hover { color: #ff0000; background-color: #ffff00; }
+a:blink { color: #ff0000; }
+
+.small { font-size: 10px; }
+.tiny  { font-size: 9px; }
+.gray  { color: #666666; }
+.center { text-align: center; }
+.right  { text-align: right; }
+.nowrap { white-space: nowrap; }
+.mono { font-family: "Courier New", Courier, monospace; }
+.comic { font-family: "Comic Sans MS", "Comic Sans", cursive; }
+.hidden { display: none; }
+
+/* --- the big title ------------------------------------------------------ */
+h1.big {
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  font-size: 34px;
+  margin: 0;
+  padding: 6px 4px;
+  text-align: center;
+  letter-spacing: -1px;
+  color: #ffffff;
+  background: linear-gradient(90deg, #ff00ff 0%, #0000ff 25%, #00ff00 50%, #00ffff 75%, #ff00ff 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 9s linear infinite;
+}
+@keyframes rainbow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+h2 {
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  font-size: 17px;
+  margin: 10px 0 4px 0;
+  color: #000080;
+  border-bottom: 2px dotted #000080;
+}
+h3 {
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  font-size: 14px;
+  margin: 8px 0 3px 0;
+  color: #7b0099;
+}
+
+/* --- bevels, the 1998 way of saying "rounded corner" --------------------- */
+.bev {
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+  padding: 4px;
+}
+.bev-in {
+  background: #d4d0c8;
+  border-top: 2px solid #404040;
+  border-left: 2px solid #404040;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  padding: 3px;
+}
+.sunken {
+  background: #d4d0c8;
+  border-top: 2px solid #404040;
+  border-left: 2px solid #404040;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+}
+
+/* --- window title bar (yes, it's 2004, this is fine) --------------------- */
+.titlebar {
+  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  color: #ffffff;
+  font-family: Tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 6px;
+}
+.titlebar .grip {
+  float: right;
+  letter-spacing: -3px;
+  color: #c0c0c0;
+}
+.titlebar a { color: #ffffff; text-decoration: none; }
+.titlebar a:hover { color: #ffff00; background: none; }
+
+/* --- under construction tape ------------------------------------------- */
+.tape {
+  background: repeating-linear-gradient(45deg, #ffff00 0 14px, #000000 14px 28px);
+  color: #000000;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px;
+  font-size: 12px;
+  text-shadow: 1px 1px 0 #ffff00;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* --- the marquee strip -------------------------------------------------- */
+.strip {
+  background: #000000;
+  color: #00ff00;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  border-top: 1px solid #00ff00;
+  border-bottom: 1px solid #00ff00;
+  padding: 2px 0;
+}
+.strip a { color: #00ff00; }
+.strip a:hover { color: #ff00ff; }
+
+/* --- buttons that look like buttons -------------------------------------- */
+.btn2000 {
+  display: inline-block;
+  font-family: Tahoma, sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  color: #000080;
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+  padding: 3px 10px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn2000:hover { color: #cc0000; }
+.btn2000:active {
+  border-top: 2px solid #404040;
+  border-left: 2px solid #404040;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+}
+.btn2000[disabled] { color: #808080; cursor: wait; }
+
+/* --- blinkies (a .gif is just a very small idea, let's reinvent it) ------ */
+.blinkie {
+  display: inline-block;
+  width: 88px;
+  height: 31px;
+  line-height: 29px;
+  text-align: center;
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  font-weight: bold;
+  color: #00ff00;
+  background: #000000;
+  border: 2px ridge #00ff00;
+  overflow: hidden;
+  text-decoration: none;
+  vertical-align: middle;
+}
+.blinkie:hover { background: #00ff00; color: #000000; }
+.b-spin  { animation: spin 2.4s linear infinite; }
+.b-bob   { animation: bob 1.1s ease-in-out infinite alternate; }
+.b-pulse { animation: pulse 0.9s steps(1) infinite; }
+.b-rain  { background: linear-gradient(90deg,#ff0000,#ff9900,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000); background-size: 300% 100%; color: #000; animation: rainbow 1.6s linear infinite; -webkit-background-clip: border-box; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+@keyframes pulse { 0%,49% { opacity: 1; } 50%,100% { opacity: 0.25; } }
+
+/* --- the visitor counter ------------------------------------------------- */
+.counter {
+  display: inline-block;
+  background: #000000;
+  color: #00ff41;
+  border: 2px inset #555555;
+  padding: 1px 5px;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+.counter-wrap {
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+  display: inline-block;
+  padding: 2px;
+}
+
+/* --- misc furniture ----------------------------------------------------- */
+.hr-dotted { border-top: 2px dotted #808080; height: 0; margin: 8px 0; }
+.hr-fancy {
+  border: 0; height: 6px;
+  background: radial-gradient(circle at 50% 0, #ff00ff 2px, transparent 2px) 0 0/12px 6px repeat-x;
+  margin: 6px 0;
+}
+.note {
+  font-size: 10px;
+  font-style: italic;
+  color: #555555;
+  margin: 2px 0;
+}
+.pill {
+  display: inline-block;
+  background: #0066cc;
+  color: #ffffff;
+  font-family: Tahoma, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 7px;
+  border-radius: 9px;
+  text-decoration: none;
+}
+.pill:hover { background: #cc0000; color: #ffff00; }
+.pill.alt { background: #cc0000; }
+.pill.alt:hover { background: #0066cc; }
+
+table.layout { border-collapse: collapse; }
+table.layout td { vertical-align: top; }
+td.navcol { width: 148px; padding-right: 8px; }
+td.maincol {
+  width: 640px;
+  background: #ffffff;
+  border: 1px solid #808080;
+  border-top: 3px solid #ffffff;
+  padding: 10px 12px;
+}
+
+.navlink {
+  display: block;
+  font-family: Tahoma, sans-serif;
+  font-size: 11px;
+  text-decoration: none;
+  color: #000080;
+  padding: 2px 3px;
+}
+.navlink:hover { background: #000080; color: #ffffff; }
+.navlink.here { background: #c0c0c0; color: #cc0000; font-weight: bold; }
+.navhead {
+  font-family: "Comic Sans MS", cursive;
+  font-size: 12px;
+  color: #ffffff;
+  background: #000080;
+  padding: 2px 4px;
+  margin-top: 6px;
+}
+
+.quote {
+  background: #ffffcc;
+  border-left: 5px solid #cc9900;
+  padding: 6px 8px;
+  margin: 6px 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+}
+.attrib { font-size: 10px; color: #806000; text-align: right; font-family: Tahoma, sans-serif; }
+
+.fact {
+  background: #ffffff;
+  border: 2px solid #000080;
+  padding: 6px 8px;
+  margin: 6px 0;
+}
+.fact .n {
+  display: inline-block;
+  background: #000080;
+  color: #ffffff;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  font-size: 11px;
+  padding: 0 5px;
+  margin-right: 4px;
+}
+
+.spoiler { background: #000000; color: #000000; }
+.spoiler:hover { background: #000000; color: #ffff00; }
+
+.cert {
+  display: inline-block;
+  border: 2px solid #cc0000;
+  color: #cc0000;
+  font-family: "Courier New", monospace;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 0 3px;
+  transform: rotate(-4deg);
+}
+
+.footer {
+  text-align: center;
+  font-size: 10px;
+  color: #cccccc;
+  padding: 10px 0 20px 0;
+}
+.footer a { color: #00ffff; }
+.footer a:hover { color: #ff00ff; background: none; }
+
+/* --- proof it was made by a person with a keyboard ----------------------- */
+.xp-stripe { height: 8px; background: repeating-linear-gradient(90deg, #0058e6 0 40px, #2f8fff 40px 80px); }
+.checker { height: 10px; background: repeating-conic-gradient(#000 0% 25%, #ffff00 0% 50%) 0 0/10px 10px; }
+
+/* ==========================================================================
+   THE EGGS
+   everything below this line is technically a feature. none of it is.
+   ========================================================================== */
+
+/* --- the status balloon. bottom-left. it arrives and then it leaves. ------ */
+.fs-say {
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
+  z-index: 99990;
+  max-width: 330px;
+  background: #ffffcc;
+  color: #000000;
+  border: 2px solid #000000;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+  font-family: Tahoma, sans-serif;
+  font-size: 11px;
+  line-height: 1.45;
+  padding: 6px 9px;
+  animation: fsin 0.22s ease-out;
+  transition: opacity 0.45s linear, transform 0.45s linear;
+}
+.fs-say a { color: #000080; font-weight: bold; }
+.fs-say a:hover { color: #cc0000; }
+.fs-say.bye { opacity: 0; transform: translateY(10px); }
+@keyframes fsin {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* --- the banner. you get one of these. it is worth nothing. ------------- */
+#fs-ach {
+  position: fixed;
+  top: 6px;
+  right: 6px;
+  z-index: 99995;
+  background: #1a1a2e;
+  color: #ffd700;
+  border: 2px solid #ffd700;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  font-family: Tahoma, sans-serif;
+  font-size: 11px;
+  padding: 7px 12px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.4s linear, transform 0.4s linear;
+  pointer-events: none;
+  max-width: 340px;
+}
+#fs-ach.on { opacity: 1; transform: translateY(0); animation: fsin 0.3s ease-out; }
+#fs-ach .fs-ach-sub { color: #a0a0c0; font-size: 9px; margin-top: 3px; }
+
+/* --- the three buttons in the title bar. one of them is a liar. --------- */
+.fs-tbtn {
+  display: inline-block;
+  width: 13px;
+  text-align: center;
+  color: #c0c0c0;
+  cursor: pointer;
+  user-select: none;
+  font-size: 11px;
+  line-height: 11px;
+}
+.fs-tbtn:hover { background: #000080; color: #ffffff; }
+.titlebar.shake { animation: fshake 0.5s linear; }
+@keyframes fshake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+/* minimise / maximise. both of them are reversible. that is the joke. */
+body.fs-min .maincol,
+body.fs-min .layout > tr > td > .maincol { display: none; }
+body.fs-min .navcol { width: 100% !important; }
+body.fs-min .checker { display: none; }
+body.fs-max .layout { width: 100% !important; max-width: none; }
+body.fs-max table.layout[align] { align: center; }
+
+/* --- the nine letters. they are not all load-bearing. one of them is. --- */
+h1.big .fs-letter { cursor: pointer; user-select: none; padding: 0 1px; }
+h1.big .fs-letter:hover { background: #000080; }
+
+/* --- things that walk --------------------------------------------------- */
+.fs-walker, .fs-goose {
+  position: fixed;
+  left: 0; top: 0;
+  z-index: 99980;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+.fs-goose { pointer-events: auto; cursor: pointer; }
+.fs-pipe {
+  position: fixed;
+  right: 24px;
+  bottom: 20px;
+  z-index: 99985;
+  font-size: 64px;
+  color: #7a4d1d;
+  opacity: 0.85;
+  pointer-events: none;
+  animation: fpuff 9s linear;
+}
+@keyframes fpuff {
+  0% { transform: translateY(30px) rotate(-12deg); opacity: 0; }
+  12% { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+  75% { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+  100% { transform: translateY(10px); opacity: 0; }
+}
+
+/* --- things you can click that look like they are just words ------------ */
+.fs-clickable { cursor: pointer; }
+.fs-clickable:hover { color: #cc0000 !important; text-decoration: underline; }
+#fs-gooselink { cursor: pointer; }
+
+/* --- god mode. nothing is invulnerable. it just feels like it. ---------- */
+body.fs-god .maincol { text-shadow: 0 0 3px #ff0000; }
+body.fs-god .tape { animation: fgod 1.2s steps(1) infinite; }
+@keyframes fgod {
+  0%, 49% { filter: none; }
+  50%, 100% { filter: hue-rotate(90deg); }
+}
+
+/* --- theme 8. the button said there were seven. there were eight. ------- */
+body.fs-theme8 {
+  background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff,
+              #0000ff, #ff00ff, #ff0000) !important;
+  background-size: 100% 100% !important;
+  animation: fspinbg 9s linear infinite !important;
+}
+body.fs-theme8 .bev, body.fs-theme8 .bev-in,
+body.fs-theme8 .sunken, body.fs-theme8 .counter-wrap {
+  background: rgba(255, 255, 255, 0.82) !important;
+}
+body.fs-theme8 * { animation-play-state: running !important; }
+@keyframes fspinbg {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* --- the command prompt ------------------------------------------------- */
+.fs-console {
+  position: fixed;
+  left: 4%;
+  top: 8%;
+  width: 520px;
+  max-width: 92%;
+  z-index: 99999;
+  background: #000000;
+  color: #c0c0c0;
+  border: 2px solid #c0c0c0;
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.55);
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.fs-console-bar {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #ffffff;
+  font-weight: bold;
+  padding: 3px 6px;
+  font-size: 11px;
+}
+.fs-out {
+  margin: 0;
+  padding: 6px 8px;
+  height: 230px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.fs-out .cmd { color: #ffffff; }
+.fs-prompt { padding-left: 8px; color: #00ff41; }
+.fs-console input {
+  width: 70%;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: #ffffff;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  padding: 3px 0 6px 4px;
+  vertical-align: bottom;
+}
+
+/* --- the egg log -------------------------------------------------------- */
+table.egglog { width: 100%; border-collapse: collapse; }
+table.egglog td { padding: 4px 5px; vertical-align: top; border-bottom: 1px dotted #b0b0b0; }
+table.egglog tr.got { background: #ddffdd; }
+table.egglog tr.got td:first-child { color: #006600; }
+table.egglog tr:not(.got) td:first-child { color: #999999; }
+
+/* --- THE PRINT EGG ------------------------------------------------------
+   you are printing a website. this is the website acknowledging that it
+   is, at this exact moment, becoming an object in a room.
+   --------------------------------------------------------------------- */
+#fs-printegg { display: none; }
+@media print {
+  @page { margin: 1.4cm; }
+  body { background: #ffffff !important; color: #000000 !important; }
+  .strip, .xp-stripe, .checker, .fs-say, #fs-ach, canvas, marquee { display: none !important; }
+  /* the logo is drawn with background-clip:text, which does not survive paper */
+  h1.big {
+    background: none !important;
+    -webkit-text-fill-color: #000000 !important;
+    color: #000000 !important;
+  }
+  h1.big .fs-letter { -webkit-text-fill-color: inherit !important; color: inherit !important; }
+  #fs-printegg {
+    display: block !important;
+    margin: 18px 0 0 0;
+    padding: 12px;
+    border: 3px double #000000;
+    font-family: "Courier New", monospace;
+    font-size: 12pt;
+    text-align: center;
+  }
+  a { color: #000000 !important; text-decoration: underline; }
+  * { animation: none !important; }
+}
+
+/* --- motion, if you would rather not ------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  body.fs-theme8 { animation: none !important; }
+  .fs-say, #fs-ach, .fs-pipe { animation: none !important; transition: none !important; }
+}

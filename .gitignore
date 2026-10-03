@@ -1,0 +1,9 @@
+# browser-test leftovers. the website does not need these.
+.playwright-cli/
+
+# python
+__pycache__/
+*.pyc
+
+# the http server I keep starting
+.DS_Store

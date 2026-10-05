@@ -291,22 +291,22 @@
       /* a starting ramp so you are not staring at an empty screen */
       /* a flat shelf to start on, and a bump further along, because starting
          the game by sliding off a ramp is not how anyone remembers this */
-      g.seg.push({ x1: 20, y1: 245, x2: 170, y2: 245, done: 1 });
-      g.seg.push({ x1: 230, y1: 235, x2: 330, y2: 205, done: 1 });
+      g.seg.push({ x1: 10, y1: 228, x2: 210, y2: 248, done: 1 });
+      g.seg.push({ x1: 300, y1: 250, x2: 430, y2: 212, done: 1 });
       g.wheels = [
-        { x: 60, y: 230, vx: 0, vy: 0, g: 0, on: 0 },
-        { x: 90, y: 230, vx: 0, vy: 0, g: 0, on: 0 }
+        { x: 70, y: 226, vx: 0, vy: 0, g: 0, on: 0 },
+        { x: 100, y: 224, vx: 0, vy: 0, g: 0, on: 0 }
       ];
-      g.head = { x: 75, y: 176 };
+      g.head = { x: 85, y: 208, vx: 0, vy: 0 };
       g.running = 1; g.crashT = 0; g.maxX = 60; g.trail = [];
     },
     drawSeg: function (g, x1, y1, x2, y2) {
       g.seg.push({ x1: x1, y1: y1, x2: x2, y2: y2, done: 0 });
     },
-    drag: function (g, x1, y1, x2, y2) {
-      if (g.drag) { g.drag.x2 = x2; g.drag.y2 = y2; }
-    },
     press: function (g, x, y) { g.drag = { x1: x, y1: y, x2: x, y2: y }; },
+    dragMove: function (g, x, y) {
+      if (g.drag) { g.drag.x2 = x; g.drag.y2 = y; }
+    },
     release: function (g) {
       if (!g.drag) return;
       var dx = g.drag.x2 - g.drag.x1, dy = g.drag.y2 - g.drag.y1;
@@ -330,12 +330,12 @@
         for (var k = 0; k < g.seg.length; k++) {
           s = g.seg[k];
           best = segPoint(s.x1, s.y1, s.x2, s.y2, wheel.x, wheel.y);
-          if (best.d < 7) {
+          if (best.d < 9) {
             /* push out along the normal, kill the normal velocity */
             var ddx = wheel.x - best.x, ddy = wheel.y - best.y;
             var len = Math.hypot(ddx, ddy) || 1;
             var nX = ddx / len, nY = ddy / len;
-            wheel.x += nX * (7 - best.d); wheel.y += nY * (7 - best.d);
+            wheel.x += nX * (9 - best.d); wheel.y += nY * (9 - best.d);
             var vn = wheel.vx * nX + wheel.vy * nY;
             if (vn < 0) { wheel.vx -= vn * nX * 1.02; wheel.vy -= vn * nY * 1.02; }
             if (nY < -0.45) { wheel.on = 1; wheel.vx -= wheel.vx * 0.12; }   /* the normal points away from the line, i.e. up */
@@ -406,10 +406,19 @@
       c.beginPath(); c.moveTo(mx, my); c.lineTo(g.head.x, g.head.y); c.stroke();
       c.fillStyle = "#f4f4f4"; c.beginPath(); c.arc(g.head.x, g.head.y, 6, 0, 6.2832); c.fill();
       c.restore();
-      txt(c, "DRAW WITH THE MOUSE. SPACE = CLEAR YOUR LINES.", 6, 14, 9, "#8892a8");
+      txt(c, "DRAG TO DRAW. SPACE = CLEAR + RESTART. R = JUST RESTART. C = UNDO.", 6, 14, 9, "#8892a8");
       if (g.crashT > 0) txt(c, "CRASH. PRESS R.", g.w / 2, g.h / 2, 18, "#ff5050", "center");
     },
-    key: function (g, k) { if (k === " ") { g.seg = []; SFX.pop(); } },
+    key: function (g, k) {
+      if (k === " ") { g.seg = []; SFX.pop(); g.restart(g); }
+      else if (k === "r") g.restart(g);
+    },
+    restart: function (g) {
+      g.wheels[0] = { x: 70, y: 226, vx: 0, vy: 0, on: 0 };
+      g.wheels[1] = { x: 100, y: 224, vx: 0, vy: 0, on: 0 };
+      g.head = { x: 85, y: 208, vx: 0, vy: 0 };
+      g.running = 1; g.crashT = 0; g.maxX = 70; g.cam = null; g.score = 0;
+    },
     score: 0
   };
   function crash(g) {
@@ -422,11 +431,14 @@
   /* -------------------------------------------------------------------
      2.3  BLOXORZ  (2008: roll a 3-long brick into holes, tip it over)
      ------------------------------------------------------------------- */
+  /* every board below was generated and proven solvable by _build/blevels.py.
+     the first four boards in this file were typed by hand and all four were
+     unwinnable, which is not something you can see by looking at them. */
   var BLOX_LEVELS = [
-    { n: "1", holes: [[0, 4]], goal: [4, 4] },
-    { n: "2", holes: [[4, 2], [0, 7]], goal: [7, 7] },
-    { n: "3", holes: [[2, 2], [5, 2], [2, 5], [5, 5], [0, 8]], goal: [8, 8] },
-    { n: "4", holes: [[3, 3], [4, 3], [3, 4], [4, 4], [0, 8], [8, 8]], goal: [8, 0] }
+    { n: "TWO AND THREE", N: 6, holes: [[0, 1], [4, 1]], goal: [5, 4] },
+    { n: "THE FOUR HOLE", N: 7, holes: [[0, 1], [3, 3], [3, 4], [4, 4]], goal: [6, 4] },
+    { n: "SOMETHING NARROW", N: 8, holes: [[0, 5], [3, 4], [5, 6], [6, 2], [7, 6]], goal: [3, 7] },
+    { n: "THE LAST ONE", N: 8, holes: [[2, 3], [2, 6], [5, 1], [6, 2], [6, 7], [7, 0], [7, 5]], goal: [6, 5] }
   ];
 
   var gBlox = {
@@ -438,7 +450,7 @@
     loadLevel: function (g, i) {
       g.li = i;
       var L = BLOX_LEVELS[i];
-      g.N = i === 0 ? 5 : 8;
+      g.N = L.N;
       g.holes = L.holes; g.goal = L.goal;
       g.bx = 0; g.by = 0; g.state = "x";     /* x: lying along x, z: along z, o: upright */
       g.moves = 0; g.moving = 0; g.dead = 0; g.won = 0;
@@ -446,23 +458,26 @@
     move: function (g, dx, dy) {
       if (g.dead || g.won || g.moving) return;
       var nx = g.bx, ny = g.by, ns = g.state;
-      /* the tipping rules of a 1x1x3 block, which took me an embarrassingly
-         long time to get right and which is why nobody builds these */
+      /* The tipping rules of a 1x1x3 block. x = lying east, z = lying south,
+         o = standing on end. Rolling sideways tips it; rolling along its
+         length just slides it. These were wrong in the first build, which
+         made all four boards unwinnable, so they are now proven in
+         _build/blevels.py before a single one of them ships. */
       if (g.state === "x") {
-        if (dy === 1) { ny += 1; }
-        else if (dy === -1) { ny -= 1; }
-        else if (dx === 1) { nx += 1; ns = "z"; }
+        if (dx === 1) { nx += 3; ns = "o"; }
+        else if (dx === -1) { nx -= 1; ns = "o"; }
+        else if (dy === 1) { ny += 1; }
+        else { ny -= 1; }
+      } else if (g.state === "o") {
+        if (dx === 1) { ns = "z"; }
         else if (dx === -1) { nx -= 2; ns = "z"; }
-      } else if (g.state === "z") {
-        if (dx === 1) { nx += 1; }
-        else if (dx === -1) { nx -= 1; }
-        else if (dy === 1) { ny += 1; ns = "x"; }
-        else if (dy === -1) { ny -= 3; ns = "x"; }
+        else if (dy === 1) { ns = "x"; }
+        else { ny -= 2; ns = "x"; }
       } else {
-        if (dy === 1) { ny += 1; ns = "x"; }
-        else if (dy === -1) { ny -= 1; ns = "z"; }
-        else if (dx === 1) { nx += 1; ns = "z"; }
-        else if (dx === -1) { nx -= 1; ns = "x"; }
+        if (dx === 1) { nx += 1; ns = "o"; }
+        else if (dx === -1) { nx -= 1; ns = "o"; }
+        else if (dy === 1) { ny += 1; }
+        else { ny -= 3; }
       }
       var cells = bloxCells(g, nx, ny, ns);
       for (var i = 0; i < cells.length; i++) {
@@ -513,7 +528,7 @@
         rct(c, px2 + 3, py2 + 3, S - 6, (S - 6) * 0.55, top);
         box(c, px2 + 3, py2 + 3, S - 6, S - 6, edge);
       }
-      txt(c, "LEVEL " + (g.li + 1) + "/" + BLOX_LEVELS.length + "   MOVES " + g.moves, 8, 16, 10, "#8892a8");
+      txt(c, BLOX_LEVELS[g.li].n + "   LEVEL " + (g.li + 1) + "/" + BLOX_LEVELS.length + "   MOVES " + g.moves, 8, 16, 10, "#8892a8");
       txt(c, "ARROWS TO ROLL. THE BRICK IS 3 BLOCKS LONG AND FINALLY HAS TO FIT THROUGH A 1x1 HOLE.", 8, g.h - 8, 8, "#4a5a6a");
       if (g.dead) txt(c, "IN THE HOLE. R TO TRY IT AGAIN.", g.w / 2, g.h / 2, 16, "#ff5050", "center");
       if (g.won) txt(c, "FIT. SPACE FOR LEVEL " + Math.min(BLOX_LEVELS.length, g.li + 2) + ".", g.w / 2, g.h / 2, 14, "#39d353", "center");
@@ -538,7 +553,9 @@
     desc: "a unicorn runs forever. click to jump. it is white on white and it still works.",
     init: function (g) {
       g.x = 60; g.y = 200; g.vy = 0; g.jumps = 0; g.ground = 220;
-      g.spd = 130; g.parts = []; g.score = 0; g.dead = 0; g.coinT = 0;
+      g.spd = 115; g.parts = []; g.score = 0; g.dead = 0; g.coinT = 0;
+      g.buildTo = 780; g.nextAt = 560;   /* first spike about four seconds in */
+      g.bestNow = 0;
       for (var i = 0; i < 400; i++) g.parts.push({ x: -i * 12, y: 0, h: Math.sin(i * 0.11) * 16 + Math.sin(i * 0.037) * 22 });
     },
     update: function (g, dt) {
@@ -551,35 +568,42 @@
       g.groundY = gy;
       if (g.y >= gy) { g.y = gy; g.vy = 0; g.jumps = 0; }
       g.score = Math.floor(g.x / 8);
-      /* scenery scrolls */
+      /* scenery scrolls, and the world is built well past the right edge so
+         that obstacles have somewhere to be placed. building it only to the
+         screen edge meant the front never advanced and nothing ever spawned. */
       var shift = g.spd * dt;
       for (var i = 0; i < g.parts.length; i++) { g.parts[i].x -= shift; }
-      while (g.parts[g.parts.length - 1].x < g.w) {
+      while (g.parts[g.parts.length - 1].x < g.buildTo) {
         var last = g.parts[g.parts.length - 1];
-        g.parts.push({ x: last.x + 12, y: 0, h: Math.sin((last.x + g.parts.length * 12) * 0.011) * 8 + rnd(-18, 18), spike: 0, bird: 0 });
-        g.parts[g.parts.length - 1].h = clamp(g.parts[g.parts.length - 1].h, -60, 60);
+        g.parts.push({ x: last.x + 12, y: 0, h: rnd(-22, 22), spike: 0, bird: 0 });
       }
       for (var k = 0; k < g.parts.length; k++) {
         var p = g.parts[k];
         if (p.x < -20) { g.parts.splice(k, 1); k--; continue; }
         if (p.spike && Math.abs(p.x - g.x) < 12 && g.y > gy - 14) { g.die(g); return; }
-        if (p.bird && Math.abs(p.x - g.x) < 14 && Math.abs(p.y - (g.y - 10)) < 16) { g.die(g); return; }
+        if (p.bird && Math.abs(p.x - g.x) < 13 && Math.abs(p.y - (g.y - 10)) < 14) { g.die(g); return; }
         if (p.coin && Math.abs(p.x - g.x) < 14 && Math.abs(p.y - (g.y - 10)) < 18) {
           p.coin = 0; g.score += 50; SFX.coin();
         }
       }
-      if (irnd(g.parts.length) < dt * 0.6) {
-        var l2 = g.parts[g.parts.length - 1];
+      /* obstacles go in by DISTANCE, so the pace is identical on every
+         machine and nobody gets a wall of spikes */
+      var frontier = g.parts[g.parts.length - 1].x;
+      if (frontier >= g.nextAt) {
         var r = Math.random();
-        if (r < 0.35) g.parts.push({ x: l2.x + 12, y: 0, h: 0, spike: 1 });
-        else if (r < 0.6) g.parts.push({ x: l2.x + 12, y: gy - rnd(60, 120), h: 0, bird: 1 });
-        else if (r < 0.9) g.parts.push({ x: l2.x + 12, y: gy - rnd(40, 90), h: 0, coin: 1 });
+        if (r < 0.44) { g.parts.push({ x: frontier, y: 0, h: 0, spike: 1 }); g.nextAt = frontier + rnd(170, 340); }
+        else if (r < 0.74) { g.parts.push({ x: frontier, y: gy - rnd(55, 105), h: 0, bird: 1 }); g.nextAt = frontier + rnd(150, 280); }
+        else { g.parts.push({ x: frontier, y: gy - rnd(35, 95), h: 0, coin: 1 }); g.nextAt = frontier + rnd(70, 160); }
       }
+      if (g.nextAt + 200 > g.buildTo) g.buildTo = g.nextAt + 200;
     },
     die: function (g) { g.dead = 1; SFX.die(); g.bestNow = Math.max(g.bestNow || 0, g.score); },
     tap: function (g) {
       if (g.dead) return;
       if (g.jumps < 2) { g.vy = -380; g.jumps++; SFX.jump(); }
+    },
+    key: function (g, k) {
+      if (g.dead && (k === "r" || k === " " || k === "enter")) { g.init(g); SFX.blip(); }
     },
     draw: function (g, c) {
       rct(c, 0, 0, g.w, g.h, "#fdfdfb");
@@ -632,7 +656,7 @@
         c.stroke();
       }
       txt(c, "UNICORN ATTACK", 8, 18, 12, "#111");
-      txt(c, "CLICK TO JUMP. TWICE, IF YOU MUST. NOBODY WILL JUDGE YOU.", 8, g.h - 10, 8, "#777");
+      txt(c, "CLICK TO JUMP \u00b7 TWICE IF YOU MUST \u00b7 BIRDS SIT AT HEAD HEIGHT", 8, g.h - 10, 8, "#777");
       if (g.dead) {
         rct(c, 0, 0, g.w, g.h, "rgba(255,255,255,0.86)");
         txt(c, "THE UNICORN IS DEAD", g.w / 2, g.h / 2 - 4, 18, "#111", "center");
@@ -645,6 +669,8 @@
   /* -------------------------------------------------------------------
      2.5  GRAVITY BOX  (the fall-down game. everyone wrote one. this is mine)
      ------------------------------------------------------------------- */
+  /* same story as blox: _build/glevels.py refuses to emit a board that its
+     breadth-first search cannot finish. */
   var GB_LEVELS = [
     { n: "INTRO", map: [
         "#####################",
@@ -660,38 +686,38 @@
       ] },
     { n: "SPIKES", map: [
         "#####################",
-        "#........#..........#",
-        "#..S.....#...<<<<<<<#",
-        "#........+........>>#",
-        "#........#........>>#",
-        "####.#####...########",
-        "#........#...>>.....#",
-        "#..>>>>..+......X####",
-        "#........#..........#",
+        "#>.S.....###.>.>>...#",
+        "########.##########>#",
+        "########.##########.#",
+        "#>.>.....###.>>.....#",
+        "########.##########.#",
+        "########.##########>#",
+        "#.>..>.>.........X.>#",
+        "#####################",
         "#####################",
       ] },
     { n: "WATER", map: [
         "#####################",
-        "#.S......#..........#",
-        "#........+....>>>>>.#",
-        "#........#..........#",
-        "#..######.......#####",
-        "#..#....#..>>>>>>...#",
-        "#..#.##.#..........##",
-        "#..#..#.#....<<<<...#",
-        "#..#..#.........X####",
+        "#..S...###..>>....>>#",
+        "######.############.#",
+        "######.############>#",
+        "#.>>>>.###......>.>.#",
+        "######.############>#",
+        "######.############>#",
+        "#..>>>............X.#",
+        "#####################",
         "#####################",
       ] },
     { n: "THE END", map: [
         "#####################",
-        "#....S...#..........#",
-        "#........+....>>>>>.#",
-        "#........#..........#",
-        "#.####...#..#######.#",
-        "#.#..#...#..#.....#.#",
-        "#.#..#...#..#..>>..##",
-        "#.#.##...#..#.....#.#",
-        "#.#......#.........X#",
+        "#..S...###..>.>>..>.#",
+        "######.############>#",
+        "######.############.#",
+        "#.>>.>.###>....>.>.>#",
+        "######.############>#",
+        "######.############>#",
+        "#.>>>>............X.#",
+        "#####################",
         "#####################",
       ] }
   ];
@@ -716,6 +742,20 @@
       for (var r = 0; r < g.MH; r++) {
         if (g.map[r].length !== g.MW) console.warn("[flash] gravity box map row " + r + " is " + g.map[r].length + " wide, wanted " + g.MW);
       }
+    },
+    move: function (g, dir) {
+      if (g.dead || g.done) return;
+      var nx = clamp(Math.round(g.px) + dir, 0, g.MW - 1);
+      var y0 = Math.floor(g.py);
+      var here = g.map[y0] ? g.map[y0].charAt(nx) : "#";
+      if (here === "#") return;
+      g.px = nx;
+      g.vy = g.vy;
+      var cur = g.map[y0] ? g.map[y0].charAt(nx) : "#";
+      if ((cur === ">" && g.py_ < 0) || (cur === "<" && g.py_ > 0)) {
+        g.dead = 1; g.bestNow = Math.max(g.bestNow || 0, g.score); SFX.die();
+      }
+      if (g.gx != null && nx === g.gx && y0 === g.gy) { g.done = 1; g.score += 500; SFX.win(); }
     },
     solid: function (g, x, y) {
       if (x < 0 || y < 0 || x >= g.MW || y >= g.MH) return true;
@@ -756,6 +796,8 @@
     },
     tap: function (g) { if (!g.dead && !g.done) g.flip(g); },
     key: function (g, k) {
+      if (k === "a" || k === "arrowleft") { g.move(g, -1); return; }
+      if (k === "d" || k === "arrowright") { g.move(g, 1); return; }
       if (g.done) { if (k === "r" || k === " " || k === "enter") g.load(g, Math.min(GB_LEVELS.length - 1, g.li + 1)); return; }
       if (g.dead) { if (k === "r" || k === " " || k === "enter") g.load(g, g.li); return; }
       if (k === " " || k === "arrowup" || k === "arrowdown" || k === "w" || k === "s") g.flip(g);
@@ -775,7 +817,7 @@
       }
       rct(c, ox + g.px * S + S * 0.15, oy + g.py * S + S * 0.15, S * 0.7, S * 0.7, g.py_ > 0 ? "#ffd94a" : "#ff7a4a");
       txt(c, GB_LEVELS[g.li].n + "  " + (g.li + 1) + "/" + GB_LEVELS.length, 8, 14, 10, "#8892a8");
-      txt(c, "CLICK OR SPACE TO FLIP GRAVITY. THE ARROWS ONLY HURT FROM ONE SIDE.", 8, g.h - 6, 8, "#4a5a6a");
+      txt(c, "A/D MOVE  \u00b7  SPACE FLIPS GRAVITY  \u00b7  ARROWS BITE FROM ONE SIDE ONLY", 8, g.h - 6, 8, "#4a5a6a");
       if (g.dead) txt(c, "SPLAT. R.", g.w / 2, g.h / 2, 16, "#ff5a4a", "center");
       if (g.done) txt(c, "LEVEL CLEAR. SPACE.", g.w / 2, g.h / 2, 14, "#39d353", "center");
     },
@@ -924,7 +966,7 @@
       g.newLevel(g); g.newBall(g);
     },
     newBall: function (g) {
-      g.bx = g.w / 2; g.by = g.h - 40; g.vx = rnd(-90, 90); g.vy = -260; g.stuck = 1;
+      g.bx = g.w / 2; g.by = g.h - 40; g.vx = rnd(-90, 90); g.vy = -300; g.stuck = 1;
     },
     newLevel: function (g) {
       g.rows = 4 + g.level;
@@ -939,7 +981,12 @@
       if (g.dead) return;
       if (!g.bricks.length && !g.levelUp) { g.level++; g.newLevel(g); g.levelUp = 1; g.pauseT = 1; }
       if (g.pauseT > 0) { g.pauseT -= dt; if (g.pauseT <= 0) g.levelUp = 0; }
-      g.px = clamp(g.mx - g.pw / 2, 0, g.w - g.pw);
+      /* arrows win over the mouse. a paddle you can only move with a mouse is
+         not a paddle, it is a rumour. */
+      var kl = (g.keys["arrowleft"] || g.keys["a"]) ? 1 : 0;
+      var kr = (g.keys["arrowright"] || g.keys["d"]) ? 1 : 0;
+      if (kl || kr) g.px = clamp(g.px + (kr - kl) * 340 * dt, 0, g.w - g.pw);
+      else g.px = clamp(g.mx - g.pw / 2, 0, g.w - g.pw);
       if (g.stuck) { g.bx = g.px + g.pw / 2; g.by = g.h - 40; return; }
       var sp = 1 + g.level * 0.12;
       g.bx += g.vx * sp * dt; g.by += g.vy * sp * dt;
@@ -949,7 +996,7 @@
       /* paddle */
       if (g.by + 6 >= g.h - 30 && g.by <= g.h - 24 &&
           g.bx > g.px - 4 && g.bx < g.px + g.pw + 4 && g.vy > 0) {
-        g.vy = -Math.abs(g.vy);
+        g.vy = -Math.abs(g.vy) * 1.02;
         var off = (g.bx - (g.px + g.pw / 2)) / (g.pw / 2);
         g.vx = off * 230;
         SFX.blip();
@@ -991,7 +1038,7 @@
       }
       g.score = Math.max(g.score || 0, 0) + 0;
     },
-    tap: function (g) { if (g.stuck) { g.stuck = 0; g.vy = -260; SFX.blip(); } else if (g.dead) { g.dead = 0; g.lives = 3; g.level = 0; g.score = 0; g.newLevel(g); g.newBall(g); } },
+    tap: function (g) { if (g.stuck) { g.stuck = 0; g.vy = -300; SFX.blip(); } else if (g.dead) { g.dead = 0; g.lives = 3; g.level = 0; g.score = 0; g.newLevel(g); g.newBall(g); } },
     key: function (g, k) {
       if (g.dead && (k === " " || k === "enter")) { g.tap(g); return; }
       if (k === " ") g.tap(g);
@@ -1015,7 +1062,7 @@
       rct(c, g.px, g.h - 30, g.pw, 4, "#ffffff");
       circ(c, g.bx, g.by, 4, "#ffffff");
       txt(c, "SCORE " + (g.score | 0) + "   LIVES " + g.lives + "   LEVEL " + (g.level + 1), 8, 16, 10, "#8892a8");
-      txt(c, "MOUSE OR ARROWS. SPACE TO LAUNCH THE BALL.", 8, g.h - 6, 8, "#4a5a6a");
+      txt(c, "ARROWS OR MOUSE  \u00b7  SPACE LAUNCHES  \u00b7  CLICK TOO", 8, g.h - 6, 8, "#4a5a6a");
       if (g.dead) {
         rct(c, 0, 0, g.w, g.h, "rgba(0,0,0,0.7)");
         txt(c, "NO BALLS LEFT", g.w / 2, g.h / 2, 18, "#fff", "center");
@@ -1111,10 +1158,18 @@
   /* -------------------------------------------------------------------
      2.9  HOP  (one button. the stick figure. the platypus of flash games)
      ------------------------------------------------------------------- */
+  /* gaps are in PIXELS now, because in tiles they were 120 wide and a jump
+     is 76 wide, which is how you ship a game where the player dies at x=65. */
   var HOP_LEVELS = [
-    { n: "ONE BUTTON", gaps: [[0, 3], [4, 6], [8, 10]], spikes: [6, 7], speed: 78 },
-    { n: "TWO BUTTONS", gaps: [[0, 2], [3, 5], [6, 9], [10, 12]], spikes: [5, 9], speed: 92 },
-    { n: "THE PIT", gaps: [[0, 3], [4, 5], [7, 9], [10, 13]], spikes: [6, 12], speed: 100 }
+    { n: "ONE BUTTON", speed: 96,
+      gaps: [[150, 196], [330, 372], [520, 556]],
+      spikes: [260, 640], end: 760 },
+    { n: "TWO BUTTONS", speed: 104,
+      gaps: [[140, 192], [300, 348], [470, 512], [620, 664]],
+      spikes: [250, 420, 580, 720], end: 830 },
+    { n: "THE PIT", speed: 112,
+      gaps: [[130, 186], [280, 330], [430, 476], [580, 626], [700, 742]],
+      spikes: [240, 390, 540, 670], end: 880 }
   ];
 
   var gHop = {
@@ -1124,14 +1179,20 @@
     load: function (g, i) {
       g.li = i;
       var L = HOP_LEVELS[i];
-      g.gaps = L.gaps; g.spikes = L.spikes; g.spd = L.speed;
-      g.x = 0; g.y = 0; g.vy = 0; g.hold = 0; g.dead = 0; g.won = 0; g.legT = 0;
+      g.gaps = L.gaps; g.spikes = L.spikes; g.spd = L.speed; g.end = L.end;
+      g.x = 30; g.y = 0; g.vy = 0; g.hold = 0; g.dead = 0; g.won = 0; g.legT = 0;
       g.ground = g.h - 40;
-      g.end = L.gaps[L.gaps.length - 1][1] * 40 + 40;
     },
     overGap: function (g, x) {
       for (var i = 0; i < g.gaps.length; i++) {
-        if (x >= g.gaps[i][0] * 40 && x <= g.gaps[i][1] * 40) return true;
+        if (x >= g.gaps[i][0] && x <= g.gaps[i][1]) return true;
+      }
+      return false;
+    },
+    /* the player is a point. a spike is 26 wide. being 11px away kills you. */
+    nearSpike: function (g, ahead) {
+      for (var i = 0; i < g.spikes.length; i++) {
+        if (Math.abs(g.spikes[i] - ahead) < 26) return true;
       }
       return false;
     },
@@ -1174,15 +1235,14 @@
       rct(c, -100, g.ground, 6000, g.h, "#8fd06a");
       rct(c, -100, g.ground, 6000, 6, "#6cb04c");
       for (var k = 0; k < g.gaps.length; k++) {
-        var gx = g.gaps[k][0] * 40, gw = (g.gaps[k][1] - g.gaps[k][0]) * 40;
-        rct(c, gx, g.ground - 2, gw, 4, "#5a2b22");
+        rct(c, g.gaps[k][0], g.ground - 2, g.gaps[k][1] - g.gaps[k][0], 4, "#5a2b22");
       }
       for (var s = 0; s < g.spikes.length; s++) {
-        var sx2 = g.spikes[s] * 40 + 12;
+        var sx2 = g.spikes[s] - 13;
         for (var t = 0; t < 3; t++) {
           c.fillStyle = "#9aa4b4";
           c.beginPath();
-          c.moveTo(sx2 + t * 8, g.ground); c.lineTo(sx2 + t * 8 + 4, g.ground - 14); c.lineTo(sx2 + t * 8 + 8, g.ground);
+          c.moveTo(sx2 + t * 9, g.ground + 1); c.lineTo(sx2 + t * 9 + 4, g.ground - 15); c.lineTo(sx2 + t * 9 + 9, g.ground + 1);
           c.closePath(); c.fill();
         }
       }
@@ -1200,7 +1260,7 @@
       c.stroke(); c.lineCap = "butt";
       if (g.won) { rct(c, g.end, g.ground - 60, 4, 60, "#39d353"); }
       c.restore();
-      txt(c, HOP_LEVELS[g.li].n + "  " + (g.li + 1) + "/" + HOP_LEVELS.length, 8, 16, 10, "#2a3a4a");
+      txt(c, HOP_LEVELS[g.li].n + "  " + (g.li + 1) + "/" + HOP_LEVELS.length + "   HOLD TO JUMP HIGHER", 8, 16, 10, "#2a3a4a");
       txt(c, "SPACE OR CLICK TO JUMP. HOLD IT IN THE AIR TO JUMP HIGHER.", 8, g.h - 8, 8, "#3a5a6a");
       if (g.dead) txt(c, "R TO RUN AGAIN", g.w / 2, g.h / 2, 16, "#b03030", "center");
       if (g.won) txt(c, "LEVEL CLEAR. SPACE.", g.w / 2, g.h / 2, 14, "#2a7a3a", "center");
@@ -1286,12 +1346,12 @@
     desc: "you are in the bunker on the left. they come from the right. click. that is the job.",
     init: function (g) {
       g.aliens = []; g.shots = []; g.booms = [];
-      g.wave = 1; g.spawnT = 0.5; g.score = 0; g.hp = 5; g.over = 0;
-      g.waveT = 0;
+      g.wave = 1; g.spawnT = 0.6; g.score = 0; g.hp = 6; g.over = 0;
+      g.waveT = 0; g.breather = 1.2; g.alive = 0; g.waveKills = 0;
     },
     spawn: function (g) {
       var r = Math.random();
-      var type = r < 0.14 ? "big" : (r < 0.45 ? "runner" : "grunt");
+      var type = r < 0.12 ? "big" : (r < 0.42 ? "runner" : "grunt");
       g.aliens.push({
         x: g.w + 20, y: 200 + rnd(-30, 30), type: type,
         hp: type === "big" ? 5 : (type === "runner" ? 1 : 2),
@@ -1302,25 +1362,29 @@
     update: function (g, dt) {
       if (g.over) return;
       g.waveT += dt;
+      /* a wave is a timer, not a queue. clearing the screen used to advance
+         the wave instantly, which meant wave 31 inside a minute. */
+      if (g.breather > 0) g.breather -= dt;
       g.spawnT -= dt;
-      if (g.spawnT <= 0) {
+      if (g.breather <= 0 && g.spawnT <= 0) {
         g.spawn(g);
-        g.spawnT = Math.max(0.22, 1.25 - g.wave * 0.08) * rnd(0.6, 1.4);
+        g.alive++;
+        g.spawnT = Math.max(0.75, 1.5 - g.wave * 0.07) * rnd(0.75, 1.35);
       }
-      if (!g.aliens.length) { g.wave++; g.waveT = 0; sayWave(g); }
+      if (g.waveT > 22) { g.wave++; g.waveT = 0; g.breather = 2.2; sayWave(g); }
       for (var i = g.aliens.length - 1; i >= 0; i--) {
         var a = g.aliens[i];
         a.hit = Math.max(0, a.hit - dt);
         a.t += dt;
         a.x -= a.spd * dt * (1 + g.wave * 0.05);
         a.shootT -= dt;
-        if (a.shootT <= 0 && a.x > 120 && a.x < 400) {
-          a.shootT = rnd(2, 4);
+        if (a.shootT <= 0 && a.x > 150 && a.x < 400) {
+          a.shootT = rnd(3.2, 5.5);
           if (a.type !== "runner") {
-            g.booms.push({ x: a.x, y: a.y, vx: -140, vy: rnd(-40, 10), kind: "eb", life: 4 });
+            g.booms.push({ x: a.x, y: a.y, vx: -120, vy: rnd(-30, 10), kind: "eb", life: 4 });
           }
         }
-        if (a.x < 50) {
+        if (a.x < 62) {
           g.hp--;
           g.aliens.splice(i, 1);
           SFX.die();
@@ -1353,7 +1417,7 @@
         if (p2.kind === "eb") p2.vy += 40 * dt;
         p2.life -= dt;
         if (p2.life <= 0 || p2.x < 40) g.booms.splice(b2, 1);
-        if (p2.kind === "eb" && p2.x < 70) { g.hp -= 1; g.booms.splice(b2, 1); SFX.die(); if (g.hp <= 0) g.over = 1; }
+        if (p2.kind === "eb" && p2.x < 92) { g.hp -= 1; g.booms.splice(b2, 1); SFX.die(); if (g.hp <= 0) g.over = 1; }
       }
     },
     tap: function (g, x, y) {
@@ -1404,7 +1468,7 @@
         txt(c, "THE BUNKER IS GONE", g.w / 2, g.h / 2, 18, "#ff5050", "center");
         txt(c, "CLICK OR SPACE TO HOLD IT AGAIN", g.w / 2, g.h / 2 + 18, 10, "#8892a8", "center");
       }
-      if (g.waveT > 0 && g.waveT < 2 && g.aliens.length === 0) {
+      if (g.waveT > 20 && g.aliens.length === 0) {
         txt(c, "WAVE " + g.wave, g.w / 2, 120, 22, "#39d353", "center");
       }
     },
@@ -1448,7 +1512,7 @@
       var dx = g.drag.x - g.drag.x2, dy = g.drag.y - g.drag.y2;
       if (Math.hypot(dx, dy) > 8 && g.ammo > 0) {
         g.ammo--;
-        g.balls.push({ x: g.drag.x2, y: g.drag.y2, vx: dx * 5.5, vy: dy * 5.5, r: 9 });
+        g.balls.push({ x: g.drag.x2, y: g.drag.y2, vx: dx * 5.5, vy: dy * 5.5, r: 9, life: 12, rolling: 0 });
         SFX.whoosh();
       }
       g.drag = null;
@@ -1459,10 +1523,17 @@
         var b = g.balls[i];
         b.vy += 900 * dt;
         b.x += b.vx * dt; b.y += b.vy * dt;
-        /* the floor and the left wall, so the ball cannot leave the room */
-        if (b.y > 300 - b.r) { b.y = 300 - b.r; b.vy *= -0.42; b.vx *= 0.92; SFX.thud(); }
-        if (b.x < b.r) { b.x = b.r; b.vx *= -0.5; }
-        if (b.x > g.w - b.r) { b.x = g.w - b.r; b.vx *= -0.5; }
+        /* the floor. bounce ONCE on impact, then roll. bouncing every frame
+           is how the ball used to kill itself in half a second. */
+        if (b.y + b.r >= 300) {
+          b.y = 300 - b.r;
+          if (b.vy > 0) { b.vy = -b.vy * 0.42; SFX.thud(); }
+          if (Math.abs(b.vy) < 46) { b.rolling = 1; b.vy = 0; }
+          b.vx *= 0.995;
+        }
+        if (b.rolling) b.vy = 0;
+        if (b.x < b.r) { b.x = b.r; b.vx *= -0.5; b.rolling = 0; }
+        if (b.x > g.w - b.r) { b.x = g.w - b.r; b.vx *= -0.5; b.rolling = 0; }
         var hitAny = false;
         for (var k = g.blocks.length - 1; k >= 0; k--) {
           var bl = g.blocks[k];
@@ -1473,21 +1544,21 @@
             g.score += bl.kind === "glass" ? 25 : 10;
             b.vx *= -0.45; b.vy = -Math.abs(b.vy) * 0.3;
             /* shove the block a bit. nobody simulates this properly. */
-            bl.vx += b.vx * 0.25; bl.vy -= 40;
+            bl.vx += b.vx * 0.18; bl.vy -= 30;
             SFX.hit();
             if (bl.hp <= 0) {
               bl.dead = 1; g.score += 20;
               for (var p = 0; p < (bl.kind === "glass" ? 9 : 4); p++) {
-                g.balls.push({ x: bl.x + rnd(0, 24), y: bl.y + rnd(0, 22), vx: rnd(-120, 120), vy: rnd(-260, -40), r: 2.5, shard: 1 });
+                g.balls.push({ x: bl.x + rnd(0, 24), y: bl.y + rnd(0, 22), vx: rnd(-120, 120), vy: rnd(-260, -40), r: 2.5, shard: 1, life: 1.4, rolling: 0 });
               }
               SFX.pop();
             }
           }
         }
-        if (hitAny || Math.abs(b.vy) < 6) {
-          if (!b.shard && Math.hypot(b.vx, b.vy) < 30) g.balls.splice(i, 1);
-        }
-        if (b.y > 340) g.balls.splice(i, 1);
+        /* a stone that has stopped moving is a stone that is not a problem
+           any more. shards live until they leave the room. */
+        if (!b.shard && !b.rolling && Math.hypot(b.vx, b.vy) < 26 && b.life < 6) g.balls.splice(i, 1);
+        if (b.shard && (b.y > 340 || b.life < 0)) g.balls.splice(i, 1);
       }
       /* blocks fall and stack (loosely) */
       for (var m = g.blocks.length - 1; m >= 0; m--) {
@@ -1506,7 +1577,9 @@
             else if (b2.vx < 0) b2.x = o.x + o.w;
           }
         }
-        if (b2.x < 0) b2.x = 0;
+        if (b2.x < 0) { b2.x = 0; b2.vx = 0; }
+        if (b2.x > g.w - b2.w) { b2.x = g.w - b2.w; b2.vx = 0; }
+        b2.vx = clamp(b2.vx, -260, 260);
       }
       if (!g.blocks.length) {
         if (g.li >= SLING_LEVELS.length - 1) { g.won = 1; g.score += 500; SFX.win(); }

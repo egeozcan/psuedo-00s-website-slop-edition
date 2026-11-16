@@ -121,36 +121,41 @@
      picker on the left is the same list the rules are written against.
      ------------------------------------------------------------------- */
   var MAT = { EMPTY: 0, SAND: 1, WATER: 2, OIL: 3, WOOD: 4, FIRE: 5, LAVA: 6, STONE: 7, STEAM: 8,
-              PLANT: 9, ICE: 10, GUNPOWDER: 11, ACID: 12, ASH: 13, FAUCET: 14, DRAIN: 15 };
+              PLANT: 9, ICE: 10, GUNPOWDER: 11, ACID: 12, ASH: 13, FAUCET: 14, DRAIN: 15,
+              SMOKE: 16, EMBER: 17, GLASS: 18, SALT: 19, CLONER: 20 };
 
   /* the picker, top to bottom. the first ten have digit keys, the rest want
-     arrows or E. ERASE is EMPTY, which is what erasing has always been. */
+     arrows or E. ERASE is EMPTY, which is what erasing has always been.
+     STEAM, SMOKE and EMBER are not in it: you do not pour those, you earn them. */
   var SAND_PICK = [
     { m: MAT.SAND,       name: "SAND",      key: "1", desc: "falls, piles, and sinks through anything lighter. the default, for a reason." },
     { m: MAT.WATER,      name: "WATER",     key: "2", desc: "falls and spreads. puts out fire. meets lava: the lava becomes stone." },
     { m: MAT.OIL,        name: "OIL",       key: "3", desc: "floats on water. burns very happily. nobody has ever been sorry about oil." },
-    { m: MAT.WOOD,       name: "WOOD",      key: "4", desc: "does not move. catches from fire, and from lava if it is unlucky." },
+    { m: MAT.WOOD,       name: "WOOD",      key: "4", desc: "does not move. fire turns it to embers, which burn for a while and spread." },
     { m: MAT.PLANT,      name: "PLANT",     key: "5", desc: "does not move. grows into empty air wherever it touches water." },
-    { m: MAT.FIRE,       name: "FIRE",      key: "6", desc: "rises and flickers. eats oil, wood, plants and gunpowder. dies in water." },
+    { m: MAT.FIRE,       name: "FIRE",      key: "6", desc: "rises and flickers. eats oil, wood, plants and gunpowder. smokes. dies in water." },
     { m: MAT.LAVA,       name: "LAVA",      key: "7", desc: "heavy and slow. sinks through everything lighter. lights oil and wood." },
     { m: MAT.STONE,      name: "STONE",     key: "8", desc: "does not move. does not burn. only acid gets through it, and slowly." },
-    { m: MAT.ICE,        name: "ICE",       key: "9", desc: "does not move. freezes the water beside it. melts near fire and lava." },
+    { m: MAT.ICE,        name: "ICE",       key: "9", desc: "does not move. freezes the water beside it. melts near fire, lava and salt." },
     { m: MAT.GUNPOWDER,  name: "GUNPOWDER", key: "0", desc: "a powder that waits for a spark. then the whole pile goes off." },
     { m: MAT.ASH,        name: "ASH",       key: "",  desc: "what is left over. light and grey, floats on water, very patient." },
+    { m: MAT.SALT,       name: "SALT",      key: "",  desc: "a powder. melts ice, kills plants, and dissolves in water. very 2005 kitchen." },
+    { m: MAT.GLASS,      name: "GLASS",     key: "",  desc: "does not move. acid cannot touch it. lava turns sand into it. explosions shatter it." },
     { m: MAT.ACID,       name: "ACID",      key: "",  desc: "a liquid that eats sand, wood, plants, ice, gunpowder, and stone. slowly." },
     { m: MAT.FAUCET,     name: "FAUCET",    key: "",  desc: "does not move. drips water downward forever. draw over it to stop it." },
     { m: MAT.DRAIN,      name: "DRAIN",     key: "",  desc: "does not move. swallows whatever touches it. the floor has a hole now." },
+    { m: MAT.CLONER,     name: "CLONER",    key: "",  desc: "does not move. remembers the first thing it touches, then makes it forever." },
     { m: MAT.EMPTY,      name: "ERASE",     key: "E", desc: "removes whatever it touches. right-drag erases from anywhere, too." }
   ];
 
   /* sidebar geometry, in game pixels */
-  var SAND_PANEL = 84, SAND_ROW0 = 16, SAND_ROWH = 15;
-  var SAND_SIZE_Y = 246, SAND_BTN_Y = 262;
+  var SAND_PANEL = 84, SAND_ROW0 = 15, SAND_ROWH = 13;
+  var SAND_SIZE_Y = 252, SAND_BTN_Y = 268;
   var SAND_MAXSIZE = 8;
 
   /* how heavy each thing is, and which things a falling thing may push past */
-  var SAND_DENS = [0, 4, 2, 1, 9, 0.5, 6, 9, 0.1, 9, 9, 4.5, 2.5, 1.5, 9, 9];
-  var SAND_FREE = [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0];
+  var SAND_DENS = [0, 4, 2, 1, 9, 0.5, 6, 9, 0.1, 9, 9, 4.5, 2.5, 1.5, 9, 9, 0.2, 9, 9, 4.2, 9];
+  var SAND_FREE = [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0];
 
   /* colours. several shades per thing, picked per cell, so a pile is not a flat rectangle */
   var SAND_SHADES = [
@@ -169,7 +174,12 @@
     ["#9cff3a", "#7bee2a", "#b8ff50"],
     ["#8a8a88", "#9a9a96", "#7c7c7a"],
     ["#3c4f6e"],
-    ["#222a36"]
+    ["#222a36"],
+    ["#4a4e5a", "#555a66", "#3f434e"],
+    ["#a03a10", "#c4501a", "#7a2a0c", "#e06a20"],
+    ["#5fb8c0", "#74c9cf", "#4fa6b0", "#8adbe0"],
+    ["#f2f2ee", "#e0e0dc", "#fafaf6"],
+    ["#9a4ac8", "#b060e0"]
   ];
   var SAND_COL = SAND_SHADES.map(function (list) { return list.map(hex32); });
 
@@ -229,11 +239,12 @@
       var x = x0 + dx, y = y0 + dy;
       if (x < 0 || y < 0 || x >= g.gw || y >= g.gh) continue;
       var j = y * g.gw + x, t = m[j], r = Math.random();
-      if (t === MAT.STONE || t === MAT.LAVA || t === MAT.FAUCET || t === MAT.DRAIN) continue;
+      if (t === MAT.STONE || t === MAT.LAVA || t === MAT.FAUCET || t === MAT.DRAIN || t === MAT.CLONER) continue;
+      if (t === MAT.GLASS) { if (r < 0.5) m[j] = MAT.SAND; continue; }
       if (t === MAT.WATER) m[j] = MAT.STEAM;
       else if (t === MAT.ICE) m[j] = MAT.WATER;
-      else if (t === MAT.EMPTY) { if (r < 0.3) m[j] = MAT.FIRE; }
-      else if (t === MAT.SAND || t === MAT.ASH) { if (r < 0.6) m[j] = MAT.EMPTY; }
+      else if (t === MAT.EMPTY || t === MAT.SMOKE) { m[j] = r < 0.3 ? MAT.FIRE : MAT.EMPTY; }
+      else if (t === MAT.SAND || t === MAT.ASH || t === MAT.SALT) { if (r < 0.6) m[j] = MAT.EMPTY; }
       else if (r < 0.85) m[j] = MAT.FIRE;
     }
     m[i] = MAT.FIRE;
@@ -247,12 +258,16 @@
       if (j < 0) continue;
       n = m[j]; r = Math.random();
       if (n === MAT.OIL && r < 0.3) m[j] = MAT.FIRE;
-      else if (n === MAT.WOOD && r < 0.03) m[j] = MAT.FIRE;
+      else if (n === MAT.WOOD && r < 0.03) m[j] = MAT.EMBER;
       else if (n === MAT.PLANT && r < 0.08) m[j] = MAT.FIRE;
       else if (n === MAT.GUNPOWDER) { sandBoom(g, j); return; }
       else if (n === MAT.WATER && r < 0.1) { m[i] = MAT.STEAM; return; }
     }
-    if (Math.random() < 0.2) { m[i] = Math.random() < 0.25 ? MAT.ASH : MAT.EMPTY; return; }
+    if (Math.random() < 0.2) {
+      r = Math.random();
+      m[i] = r < 0.2 ? MAT.ASH : (r < 0.45 ? MAT.SMOKE : MAT.EMPTY);
+      return;
+    }
     /* flickers upward into empty air */
     j = sandNb(g, x, y, 0);
     if (j >= 0 && sandEmpty(g, j) && Math.random() < 0.15) { sandSwap(g, i, j); return; }
@@ -280,6 +295,40 @@
     }
   }
 
+  /* smoke: rises like steam, wobbles, and just goes away. it never rains. */
+  function sandSmoke(g, i, x, y) {
+    var j, dd, nx, t;
+    if (Math.random() < 0.03 || (y === 0 && Math.random() < 0.3)) { g.m[i] = MAT.EMPTY; return; }
+    if (y === 0 || Math.random() < 0.3) return;
+    dd = Math.random() < 0.5 ? -1 : 1;
+    j = sandNb(g, x, y, 0);
+    if (j >= 0 && Math.random() < 0.6 && sandEmpty(g, j)) { sandSwap(g, i, j); return; }
+    for (t = 0; t < 2; t++, dd = -dd) {
+      nx = x + dd;
+      if (nx < 0 || nx >= g.gw) continue;
+      j = (Math.random() < 0.6 ? y - 1 : y) * g.gw + nx;
+      if (sandEmpty(g, j)) { sandSwap(g, i, j); return; }
+    }
+  }
+
+  /* a liquid slides along the surface it is lying on, up to a few cells at a time.
+     one cell a tick looks like treacle; this is what makes a puddle level out. */
+  function sandSpread(g, i, x, y, range) {
+    var dd = Math.random() < 0.5 ? -1 : 1, t, s, nx, j, best, reach = 1 + irnd(range);
+    for (t = 0; t < 2; t++, dd = -dd) {
+      best = -1;
+      for (s = 1; s <= reach; s++) {
+        nx = x + dd * s;
+        if (nx < 0 || nx >= g.gw) break;
+        j = y * g.gw + nx;
+        if (!sandEmpty(g, j)) break;
+        best = j;
+      }
+      if (best >= 0) { sandSwap(g, i, best); return true; }
+    }
+    return false;
+  }
+
   /* a light thing under a heavier one swaps places with it: that is floating */
   function sandFloat(g, i, x, y) {
     var j = sandNb(g, x, y, 0), v = g.m[i];
@@ -294,6 +343,13 @@
     var m = g.m, v = m[i], j, t, nx, ny, dd;
     if (v === MAT.GUNPOWDER && (sandHas(g, x, y, MAT.FIRE) >= 0 || sandHas(g, x, y, MAT.LAVA) >= 0)) {
       sandBoom(g, i); return;
+    }
+    if (v === MAT.SALT) {
+      j = sandHas(g, x, y, MAT.ICE);
+      if (j >= 0 && Math.random() < 0.08) { m[j] = MAT.WATER; m[i] = MAT.EMPTY; g.score++; return; }
+      j = sandHas(g, x, y, MAT.PLANT);
+      if (j >= 0 && Math.random() < 0.08) { m[j] = MAT.EMPTY; m[i] = MAT.EMPTY; g.score++; return; }
+      if (sandHas(g, x, y, MAT.WATER) >= 0 && Math.random() < 0.02) { m[i] = MAT.EMPTY; return; }
     }
     if (y + 1 < g.gh) {
       j = i + g.gw;
@@ -324,7 +380,8 @@
         j = sandNb(g, x, y, k);
         if (j < 0) continue;
         t = m[j]; r = Math.random();
-        if ((t === MAT.OIL && r < 0.1) || (t === MAT.PLANT && r < 0.05) || (t === MAT.WOOD && r < 0.02)) m[j] = MAT.FIRE;
+        if ((t === MAT.OIL && r < 0.1) || (t === MAT.PLANT && r < 0.05) || (t === MAT.WOOD && r < 0.02)) m[j] = t === MAT.WOOD ? MAT.EMBER : MAT.FIRE;
+        else if (t === MAT.SAND && r < 0.01) { m[j] = MAT.GLASS; g.score++; }
         else if (t === MAT.GUNPOWDER) sandBoom(g, j);
       }
       if (m[i] !== v) return;   /* a neighbouring explosion got to it */
@@ -350,13 +407,7 @@
     }
     if (sandFloat(g, i, x, y)) return;
     if (v === MAT.LAVA && Math.random() > 0.35) return;
-    dd = Math.random() < 0.5 ? -1 : 1;
-    for (t = 0; t < 2; t++, dd = -dd) {
-      nx = x + dd;
-      if (nx < 0 || nx >= g.gw) continue;
-      j = y * g.gw + nx;
-      if (sandEmpty(g, j)) { sandSwap(g, i, j); return; }
-    }
+    sandSpread(g, i, x, y, v === MAT.LAVA ? 1 : (v === MAT.WATER ? 5 : 3));
   }
 
   /* things that do not move, but do things anyway */
@@ -382,6 +433,34 @@
       if (sandHas(g, x, y, MAT.LAVA) >= 0 && Math.random() < 0.03) { m[i] = MAT.EMPTY; g.score++; }
       else if (sandHas(g, x, y, MAT.FIRE) >= 0 && Math.random() < 0.03) { m[i] = MAT.WATER; g.score++; }
       else if (sandHeatedStone(g, x, y) && Math.random() < 0.01) { m[i] = MAT.EMPTY; g.score++; }
+    } else if (v === MAT.EMBER) {
+      /* burning wood: glows for a few seconds, lights its neighbours, then falls to ash */
+      for (k = 0; k < 4; k++) {
+        j = sandNb(g, x, y, k);
+        if (j < 0) continue;
+        t = m[j]; var r = Math.random();
+        if (t === MAT.WATER) { m[j] = MAT.STEAM; m[i] = MAT.ASH; g.score++; return; }
+        else if (t === MAT.WOOD && r < 0.015) m[j] = MAT.EMBER;
+        else if ((t === MAT.OIL && r < 0.3) || (t === MAT.PLANT && r < 0.1)) m[j] = MAT.FIRE;
+        else if (t === MAT.GUNPOWDER) { sandBoom(g, j); return; }
+      }
+      j = sandNb(g, x, y, 0);
+      if (j >= 0 && m[j] === MAT.EMPTY && Math.random() < 0.05) m[j] = Math.random() < 0.3 ? MAT.SMOKE : MAT.FIRE;
+      if (Math.random() < 0.005) m[i] = MAT.ASH;
+    } else if (v === MAT.CLONER) {
+      var a = g.aux[i];
+      if (!a) {
+        for (k = 0; k < 4; k++) {
+          j = sandNb(g, x, y, k);
+          if (j < 0) continue;
+          t = m[j];
+          if (t !== MAT.EMPTY && t !== MAT.CLONER && t !== MAT.FAUCET && t !== MAT.DRAIN && t !== MAT.STONE &&
+              t !== MAT.WOOD && t !== MAT.GLASS && t !== MAT.EMBER) { g.aux[i] = t; break; }
+        }
+      } else if (Math.random() < 0.35) {
+        j = sandNb(g, x, y, irnd(4));
+        if (j >= 0 && m[j] === MAT.EMPTY) { m[j] = a; g.stamp[j] = g.tick; }
+      }
     } else if (v === MAT.FAUCET) {
       j = i + g.gw;
       if (y + 1 < g.gh && m[j] === MAT.EMPTY && Math.random() < 0.5) m[j] = MAT.WATER;
@@ -391,7 +470,7 @@
         if (j < 0) continue;
         t = m[j];
         if (t === MAT.EMPTY || t === MAT.STONE || t === MAT.WOOD || t === MAT.ICE ||
-            t === MAT.FAUCET || t === MAT.DRAIN) continue;
+            t === MAT.FAUCET || t === MAT.DRAIN || t === MAT.GLASS || t === MAT.CLONER) continue;
         if (Math.random() < 0.5) m[j] = MAT.EMPTY;
       }
     }
@@ -408,10 +487,11 @@
         i = y * gw + x;
         if (st[i] === T) continue;
         v = m[i];
-        if (v === MAT.EMPTY || v === MAT.STONE || v === MAT.WOOD) continue;
+        if (v === MAT.EMPTY || v === MAT.STONE || v === MAT.WOOD || v === MAT.GLASS) continue;
         if (v === MAT.FIRE) sandFire(g, i, x, y);
         else if (v === MAT.STEAM) sandSteam(g, i, x, y);
-        else if (v === MAT.SAND || v === MAT.ASH || v === MAT.GUNPOWDER) sandPowder(g, i, x, y);
+        else if (v === MAT.SMOKE) sandSmoke(g, i, x, y);
+        else if (v === MAT.SAND || v === MAT.ASH || v === MAT.GUNPOWDER || v === MAT.SALT) sandPowder(g, i, x, y);
         else if (v === MAT.WATER || v === MAT.OIL || v === MAT.ACID || v === MAT.LAVA) sandLiquid(g, i, x, y);
         else sandStatic(g, i, x, y);
       }
@@ -428,6 +508,7 @@
       var x = ix + dx, y = iy + dy;
       if (x < 0 || y < 0 || x >= g.gw || y >= g.gh) continue;
       g.m[y * g.gw + x] = v;
+      g.aux[y * g.gw + x] = 0;
     }
   }
   function sandPaint(g) {
@@ -448,7 +529,7 @@
 
   function sandLandscape(g) {
     var gw = g.gw, gh = g.gh;
-    g.m.fill(0);
+    g.m.fill(0); g.aux.fill(0);
     /* a starter landscape: ground, a puddle, a little fire */
     for (var x = 0; x < gw; x++) {
       var hgt = gh - 6 - Math.round(Math.sin(x * 0.21) * 3 + Math.sin(x * 0.07) * 4);
@@ -470,6 +551,7 @@
     var n = g.gw * g.gh;
     g.m = new Uint8Array(n);
     g.stamp = new Uint32Array(n);
+    g.aux = new Uint8Array(n);   /* what each cloner has memorised */
     g.tick = 0; g.parity = 0;
     /* the picture is drawn into a small canvas at grid size, then stretched */
     g.vc = document.createElement("canvas");
@@ -481,7 +563,7 @@
     sandLandscape(g);
   }
 
-  function sandClear(g) { g.m.fill(0); }
+  function sandClear(g) { g.m.fill(0); g.aux.fill(0); }
 
   function sandUpdate(g, dt) {
     sandPaint(g);
@@ -506,7 +588,13 @@
       v = m[i];
       if (v === MAT.EMPTY) { px[i] = SAND_COL[0][0]; continue; }
       shades = SAND_COL[v];
-      px[i] = shades[(v === MAT.FIRE || v === MAT.LAVA) ? (Math.random() * shades.length) | 0
+      if (v === MAT.CLONER) {
+        /* a checkerboard of cloner purple and whatever it has memorised */
+        var cx = i % g.gw, cy = (i / g.gw) | 0, a = g.aux[i];
+        px[i] = (a && ((cx + cy) & 1)) ? SAND_COL[a][sandHash(i) % SAND_COL[a].length] : shades[(cx + cy) & 1];
+        continue;
+      }
+      px[i] = shades[(v === MAT.FIRE || v === MAT.LAVA || v === MAT.EMBER) ? (Math.random() * shades.length) | 0
                                                           : sandHash(i) % shades.length];
     }
     g.vctx.putImageData(g.img, 0, 0);
@@ -526,12 +614,12 @@
     rct(c, SAND_PANEL - 1, 13, 1, g.h - 13, "#26344e");
     for (var k = 0; k < SAND_PICK.length; k++) {
       var p = SAND_PICK[k], y = SAND_ROW0 + k * SAND_ROWH;
-      if (k === g.sel) rct(c, 2, y, SAND_PANEL - 5, SAND_ROWH - 2, "#2a3d5e");
-      else if (k === hov) rct(c, 2, y, SAND_PANEL - 5, SAND_ROWH - 2, "#17202f");
-      if (p.m === MAT.EMPTY) { rct(c, 5, y + 3, 8, 8, "#0b0e14"); box(c, 5, y + 3, 8, 8, "#8892a8"); }
-      else rct(c, 5, y + 3, 8, 8, SAND_SHADES[p.m][0]);
-      txt(c, p.name, 16, y + 10, 8, k === g.sel ? "#ffffff" : "#9aa6b8");
-      if (p.key) txt(c, p.key, SAND_PANEL - 7, y + 10, 8, "#667a94", "right");
+      if (k === g.sel) rct(c, 2, y, SAND_PANEL - 5, SAND_ROWH - 1, "#2a3d5e");
+      else if (k === hov) rct(c, 2, y, SAND_PANEL - 5, SAND_ROWH - 1, "#17202f");
+      if (p.m === MAT.EMPTY) { rct(c, 5, y + 2, 8, 8, "#0b0e14"); box(c, 5, y + 2, 8, 8, "#8892a8"); }
+      else rct(c, 5, y + 2, 8, 8, SAND_SHADES[p.m][0]);
+      txt(c, p.name, 16, y + 9, 8, k === g.sel ? "#ffffff" : "#9aa6b8");
+      if (p.key) txt(c, p.key, SAND_PANEL - 7, y + 9, 8, "#667a94", "right");
     }
 
     /* size, pause, clear */
@@ -547,8 +635,8 @@
     rct(c, 44, SAND_BTN_Y, 36, 12, "#1d2a42");
     box(c, 44, SAND_BTN_Y, 36, 12, "#3a4e72");
     txt(c, "CLEAR", 62, SAND_BTN_Y + 9, 8, "#ffffff", "center");
-    txt(c, "1-0 / ARROWS PICK", 5, 287, 7, "#556680");
-    txt(c, "R NEW  C CLEAR", 5, 296, 7, "#556680");
+    txt(c, "1-0 / ARROWS PICK", 5, 289, 7, "#556680");
+    txt(c, "R NEW  C CLEAR", 5, 298, 7, "#556680");
 
     /* the description bar: what you are hovering, or what you have */
     var info = hov >= 0 ? SAND_PICK[hov] : sel;
@@ -558,7 +646,8 @@
     if (g.paused) {
       var cxp = SAND_PANEL + (g.w - SAND_PANEL) / 2;
       rct(c, cxp - 44, g.h / 2 - 12, 88, 24, "rgba(0,0,0,0.75)");
-      txt(c, "PAUSED", cxp, g.h / 2 + 4, 12, "#ffd94a", "center");
+      txt(c, "PAUSED", cxp, g.h / 2 + 2, 12, "#ffd94a", "center");
+      txt(c, ". = ONE STEP", cxp, g.h / 2 + 10, 7, "#c8d0dc", "center");
     }
   }
 
@@ -586,12 +675,13 @@
     else if (k === "]" || k === "=" || k === "+") g.size = clamp(g.size + 1, 1, SAND_MAXSIZE);
     else if (k === " " || k === "p") g.paused = g.paused ? 0 : 1;
     else if (k === "c") sandClear(g);
+    else if (k === ".") { if (g.paused) sandStep(g); }
     else if (k === "r") { sandLandscape(g); g.score = 0; }
   }
 
   var gSand = {
     id: "sand", name: "FALLING SAND", year: "2005", w: 480, h: 300,
-    desc: "fourteen kinds of pixel. pour them, light them, freeze them. it is enough for an hour.",
+    desc: "seventeen kinds of pixel. pour them, light them, freeze them. it is enough for an hour.",
     init: sandInit,
     update: sandUpdate,
     draw: sandDraw,

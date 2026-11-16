@@ -115,168 +115,473 @@
 
   /* -------------------------------------------------------------------
      2.1  FALLING SAND  (2005-ish: nobody made this one, everybody copied it)
+
+     a grid of cells. every tick, every cell with something in it gets to
+     do one thing: fall, flow, rise, burn, grow, or nothing. the element
+     picker on the left is the same list the rules are written against.
      ------------------------------------------------------------------- */
-  var MAT = { EMPTY: 0, SAND: 1, WATER: 2, OIL: 3, WOOD: 4, FIRE: 5, LAVA: 6, STONE: 7, STEAM: 8 };
+  var MAT = { EMPTY: 0, SAND: 1, WATER: 2, OIL: 3, WOOD: 4, FIRE: 5, LAVA: 6, STONE: 7, STEAM: 8,
+              PLANT: 9, ICE: 10, GUNPOWDER: 11, ACID: 12, ASH: 13, FAUCET: 14, DRAIN: 15 };
 
-  var gSand = {
-    id: "sand", name: "FALLING SAND", year: "2005", w: 480, h: 300,
-    desc: "paint sand, water, fire. it is 8 kinds of pixel and it is enough for an hour.",
-    init: function (g) {
-      g.cell = 4;
-      g.gw = Math.floor(g.w / g.cell); g.gh = Math.floor(g.h / g.cell);
-      g.m = new Uint8Array(g.gw * g.gh);
-      g.brush = MAT.SAND; g.paint = 1;
-      g.acc = 0; g.fps = 0;
-      /* a starter landscape: ground, a puddle, a little fire */
-      for (var x = 0; x < g.gw; x++) {
-        var hgt = g.gh - 6 - Math.round(Math.sin(x * 0.21) * 3 + Math.sin(x * 0.07) * 4);
-        for (var y = hgt; y < g.gh; y++) g.m[y * g.gw + x] = MAT.STONE;
-        for (var y2 = hgt - 2; y2 < hgt; y2++) g.m[y2 * g.gw + x] = MAT.SAND;
+  /* the picker, top to bottom. the first ten have digit keys, the rest want
+     arrows or E. ERASE is EMPTY, which is what erasing has always been. */
+  var SAND_PICK = [
+    { m: MAT.SAND,       name: "SAND",      key: "1", desc: "falls, piles, and sinks through anything lighter. the default, for a reason." },
+    { m: MAT.WATER,      name: "WATER",     key: "2", desc: "falls and spreads. puts out fire. meets lava: the lava becomes stone." },
+    { m: MAT.OIL,        name: "OIL",       key: "3", desc: "floats on water. burns very happily. nobody has ever been sorry about oil." },
+    { m: MAT.WOOD,       name: "WOOD",      key: "4", desc: "does not move. catches from fire, and from lava if it is unlucky." },
+    { m: MAT.PLANT,      name: "PLANT",     key: "5", desc: "does not move. grows into empty air wherever it touches water." },
+    { m: MAT.FIRE,       name: "FIRE",      key: "6", desc: "rises and flickers. eats oil, wood, plants and gunpowder. dies in water." },
+    { m: MAT.LAVA,       name: "LAVA",      key: "7", desc: "heavy and slow. sinks through everything lighter. lights oil and wood." },
+    { m: MAT.STONE,      name: "STONE",     key: "8", desc: "does not move. does not burn. only acid gets through it, and slowly." },
+    { m: MAT.ICE,        name: "ICE",       key: "9", desc: "does not move. freezes the water beside it. melts near fire and lava." },
+    { m: MAT.GUNPOWDER,  name: "GUNPOWDER", key: "0", desc: "a powder that waits for a spark. then the whole pile goes off." },
+    { m: MAT.ASH,        name: "ASH",       key: "",  desc: "what is left over. light and grey, floats on water, very patient." },
+    { m: MAT.ACID,       name: "ACID",      key: "",  desc: "a liquid that eats sand, wood, plants, ice, gunpowder, and stone. slowly." },
+    { m: MAT.FAUCET,     name: "FAUCET",    key: "",  desc: "does not move. drips water downward forever. draw over it to stop it." },
+    { m: MAT.DRAIN,      name: "DRAIN",     key: "",  desc: "does not move. swallows whatever touches it. the floor has a hole now." },
+    { m: MAT.EMPTY,      name: "ERASE",     key: "E", desc: "removes whatever it touches. right-drag erases from anywhere, too." }
+  ];
+
+  /* sidebar geometry, in game pixels */
+  var SAND_PANEL = 84, SAND_ROW0 = 16, SAND_ROWH = 15;
+  var SAND_SIZE_Y = 246, SAND_BTN_Y = 262;
+  var SAND_MAXSIZE = 8;
+
+  /* how heavy each thing is, and which things a falling thing may push past */
+  var SAND_DENS = [0, 4, 2, 1, 9, 0.5, 6, 9, 0.1, 9, 9, 4.5, 2.5, 1.5, 9, 9];
+  var SAND_FREE = [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0];
+
+  /* colours. several shades per thing, picked per cell, so a pile is not a flat rectangle */
+  var SAND_SHADES = [
+    ["#0b0e14"],
+    ["#e8c46a", "#dcb55c", "#f0d27a", "#d4a85a"],
+    ["#2f6fd0", "#2a64bd", "#3a7ade", "#2565c4"],
+    ["#2a2418", "#332b1c", "#241f15"],
+    ["#7a5230", "#6d4a2a", "#855c36"],
+    ["#ff7a1a", "#ffb020", "#ff5a10", "#ffd060"],
+    ["#ff3b10", "#e8300c", "#ff6a1a", "#c82a0a"],
+    ["#5c6270", "#555a68", "#646a79", "#4e5361"],
+    ["#8fa8c0", "#9ab2c8"],
+    ["#3f9a3a", "#2f8a35", "#4fae48"],
+    ["#bfe9ff", "#a8dcf5", "#d6f2ff"],
+    ["#4a4a4a", "#3c3c40", "#555a52"],
+    ["#9cff3a", "#7bee2a", "#b8ff50"],
+    ["#8a8a88", "#9a9a96", "#7c7c7a"],
+    ["#3c4f6e"],
+    ["#222a36"]
+  ];
+  var SAND_COL = SAND_SHADES.map(function (list) { return list.map(hex32); });
+
+  function hex32(h) {
+    var n = parseInt(h.slice(1), 16);
+    return ((255 << 24) | ((n & 255) << 16) | (((n >> 8) & 255) << 8) | ((n >> 16) & 255)) >>> 0;
+  }
+
+  /* neighbour index: 0 up, 1 down, 2 left, 3 right. -1 if off the edge */
+  function sandNb(g, x, y, k) {
+    if (k === 0) return y > 0 ? (y - 1) * g.gw + x : -1;
+    if (k === 1) return y < g.gh - 1 ? (y + 1) * g.gw + x : -1;
+    if (k === 2) return x > 0 ? y * g.gw + x - 1 : -1;
+    return x < g.gw - 1 ? y * g.gw + x + 1 : -1;
+  }
+  /* index of a touching cell holding t, or -1 */
+  function sandHas(g, x, y, t) {
+    for (var k = 0; k < 4; k++) {
+      var j = sandNb(g, x, y, k);
+      if (j >= 0 && g.m[j] === t) return j;
+    }
+    return -1;
+  }
+  /* can something of kind src sink into (or be pushed into) cell j. a cell that has
+     already had its turn this tick is off limits, or things would move twice. */
+  function sandCan(g, src, j) {
+    var t = g.m[j];
+    return g.stamp[j] !== g.tick &&
+           (t === MAT.EMPTY || (SAND_FREE[t] === 1 && SAND_DENS[t] < SAND_DENS[src]));
+  }
+  function sandEmpty(g, j) { return g.m[j] === MAT.EMPTY && g.stamp[j] !== g.tick; }
+  /* swap two cells. both of them have now had their turn this tick, so neither
+     the thing that moved nor the thing it displaced may move again */
+  function sandSwap(g, i, j) {
+    var m = g.m, t = m[j];
+    m[j] = m[i]; m[i] = t;
+    g.stamp[i] = g.stamp[j] = g.tick;
+  }
+
+  /* gunpowder going off: everything in a little ball turns to fire. stone survives. */
+  function sandBoom(g, i) {
+    var m = g.m, R = 4, x0 = i % g.gw, y0 = (i / g.gw) | 0;
+    g.score += 5;
+    for (var dy = -R; dy <= R; dy++) for (var dx = -R; dx <= R; dx++) {
+      if (dx * dx + dy * dy > R * R + 1) continue;
+      var x = x0 + dx, y = y0 + dy;
+      if (x < 0 || y < 0 || x >= g.gw || y >= g.gh) continue;
+      var j = y * g.gw + x, t = m[j], r = Math.random();
+      if (t === MAT.STONE || t === MAT.LAVA || t === MAT.FAUCET || t === MAT.DRAIN) continue;
+      if (t === MAT.WATER) m[j] = MAT.STEAM;
+      else if (t === MAT.ICE) m[j] = MAT.WATER;
+      else if (t === MAT.EMPTY) { if (r < 0.3) m[j] = MAT.FIRE; }
+      else if (t === MAT.SAND || t === MAT.ASH) { if (r < 0.6) m[j] = MAT.EMPTY; }
+      else if (r < 0.85) m[j] = MAT.FIRE;
+    }
+    m[i] = MAT.FIRE;
+  }
+
+  function sandFire(g, i, x, y) {
+    var m = g.m, j, k, n, r;
+    /* eats whatever is next to it first, so a spark never dies before it touches the powder */
+    for (k = 0; k < 4; k++) {
+      j = sandNb(g, x, y, k);
+      if (j < 0) continue;
+      n = m[j]; r = Math.random();
+      if (n === MAT.OIL && r < 0.3) m[j] = MAT.FIRE;
+      else if (n === MAT.WOOD && r < 0.03) m[j] = MAT.FIRE;
+      else if (n === MAT.PLANT && r < 0.08) m[j] = MAT.FIRE;
+      else if (n === MAT.GUNPOWDER) { sandBoom(g, j); return; }
+      else if (n === MAT.WATER && r < 0.1) { m[i] = MAT.STEAM; return; }
+    }
+    if (Math.random() < 0.2) { m[i] = Math.random() < 0.25 ? MAT.ASH : MAT.EMPTY; return; }
+    /* flickers upward into empty air */
+    j = sandNb(g, x, y, 0);
+    if (j >= 0 && sandEmpty(g, j) && Math.random() < 0.15) { sandSwap(g, i, j); return; }
+  }
+
+  function sandSteam(g, i, x, y) {
+    var m = g.m, j, t, nx, dd;
+    if (Math.random() < 0.02) { m[i] = MAT.WATER; return; }   /* it rains, eventually */
+    if (y === 0) return;
+    j = sandNb(g, x, y, 0);
+    if (j >= 0 && sandEmpty(g, j)) { sandSwap(g, i, j); return; }
+    dd = Math.random() < 0.5 ? -1 : 1;
+    for (t = 0; t < 2; t++, dd = -dd) {
+      nx = x + dd;
+      if (nx < 0 || nx >= g.gw) continue;
+      j = (y - 1) * g.gw + nx;
+      if (sandEmpty(g, j)) { sandSwap(g, i, j); return; }
+    }
+    for (t = 0; t < 2; t++, dd = -dd) {
+      nx = x + dd;
+      if (nx < 0 || nx >= g.gw) continue;
+      j = y * g.gw + nx;
+      if (sandEmpty(g, j)) { sandSwap(g, i, j); return; }
+    }
+  }
+
+  /* a light thing under a heavier one swaps places with it: that is floating */
+  function sandFloat(g, i, x, y) {
+    var j = sandNb(g, x, y, 0), v = g.m[i];
+    if (j >= 0 && g.stamp[j] !== g.tick && SAND_FREE[g.m[j]] === 1 && SAND_DENS[g.m[j]] > SAND_DENS[v] && Math.random() < 0.5) {
+      sandSwap(g, i, j); return true;
+    }
+    return false;
+  }
+
+  /* sand, ash, gunpowder: fall, slide off piles, sink through lighter stuff */
+  function sandPowder(g, i, x, y) {
+    var m = g.m, v = m[i], j, t, nx, ny, dd;
+    if (v === MAT.GUNPOWDER && (sandHas(g, x, y, MAT.FIRE) >= 0 || sandHas(g, x, y, MAT.LAVA) >= 0)) {
+      sandBoom(g, i); return;
+    }
+    if (y + 1 < g.gh) {
+      j = i + g.gw;
+      if (sandCan(g, v, j)) { sandSwap(g, i, j); return; }
+    }
+    if (sandFloat(g, i, x, y)) return;
+    dd = Math.random() < 0.5 ? -1 : 1;
+    for (t = 0; t < 2; t++, dd = -dd) {
+      nx = x + dd; ny = y + 1;
+      if (nx < 0 || nx >= g.gw || ny >= g.gh) continue;
+      j = ny * g.gw + nx;
+      if (sandCan(g, v, j)) { sandSwap(g, i, j); return; }
+    }
+  }
+
+  /* water, oil, acid, lava: fall, float, then spread sideways into empty air. lava does it slowly.
+     liquids never shove each other sideways: that would starve the lighter one of its turn to rise. */
+  function sandLiquid(g, i, x, y) {
+    var m = g.m, v = m[i], j, k, t, r, p, dd, nx, gone = false;
+    if (v === MAT.WATER) {
+      j = sandHas(g, x, y, MAT.LAVA);
+      if (j >= 0) { m[j] = MAT.STONE; m[i] = MAT.STEAM; g.score++; return; }
+      if (sandHas(g, x, y, MAT.ICE) >= 0 && Math.random() < 0.004) { m[i] = MAT.ICE; return; }
+    } else if (v === MAT.LAVA) {
+      j = sandHas(g, x, y, MAT.WATER);
+      if (j >= 0) { m[j] = MAT.STEAM; m[i] = MAT.STONE; g.score++; return; }
+      for (k = 0; k < 4; k++) {
+        j = sandNb(g, x, y, k);
+        if (j < 0) continue;
+        t = m[j]; r = Math.random();
+        if ((t === MAT.OIL && r < 0.1) || (t === MAT.PLANT && r < 0.05) || (t === MAT.WOOD && r < 0.02)) m[j] = MAT.FIRE;
+        else if (t === MAT.GUNPOWDER) sandBoom(g, j);
       }
-      for (var i = 0; i < 3; i++) {
-        var cx = 20 + irnd(g.gw - 40), cy = 30 + irnd(40);
-        for (var dy = -6; dy <= 6; dy++) for (var dx = -8; dx <= 8; dx++) {
-          if (dx * dx / 64 + dy * dy / 36 < 1) g.m[(cy + dy) * g.gw + cx + dx] = i === 1 ? MAT.WATER : MAT.SAND;
+      if (m[i] !== v) return;   /* a neighbouring explosion got to it */
+    } else if (v === MAT.ACID) {
+      for (k = 0; k < 4 && !gone; k++) {
+        j = sandNb(g, x, y, k);
+        if (j < 0) continue;
+        t = m[j]; p = 0;
+        if (t === MAT.STONE) p = 0.006;
+        else if (t === MAT.SAND || t === MAT.WOOD || t === MAT.PLANT || t === MAT.ICE ||
+                 t === MAT.GUNPOWDER || t === MAT.ASH) p = 0.04;
+        if (p && Math.random() < p) {
+          m[j] = MAT.EMPTY;
+          if (Math.random() < 0.3) gone = true;   /* acid is used up eating things */
         }
       }
-    },
-    set: function (g, x, y, m) {
-      x = clamp(Math.floor(x / g.cell), 0, g.gw - 1);
-      y = clamp(Math.floor(y / g.cell), 0, g.gh - 1);
-      for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
-        var nx = x + dx, ny = y + dy;
-        if (nx < 0 || ny < 0 || nx >= g.gw || ny >= g.gh) continue;
-        if (dx || dy) {
-          var v = g.m[ny * g.gw + nx];
-          if (v !== MAT.EMPTY && v !== MAT.WATER && v !== MAT.OIL && v !== MAT.FIRE && v !== MAT.STEAM) return;
-        }
-        g.m[ny * g.gw + nx] = m;
-      }
-    },
-    brushAt: function (g, x, y, down) {
-      if (!down) return;
-      g.set(g, x, y, g.brush);
-    },
-    tap: function (g, x, y) {
-      var order = [MAT.SAND, MAT.WATER, MAT.OIL, MAT.WOOD, MAT.FIRE, MAT.LAVA, MAT.STONE, MAT.EMPTY];
-      var i = order.indexOf(g.brush);
-      g.brush = order[(i + 1) % order.length];
-    },
-    update: function (g, dt) {
-      g.acc += dt;
-      if (g.acc < 1 / 45) return;
-      var step = Math.min(3, Math.floor(g.acc * 45)); g.acc = 0;
-      var gw = g.gw, gh = g.gh, m = g.m, x, y, i, v, below, side, tt;
-      for (var s = 0; s < step; s++) {
-        for (y = 0; y < gh; y++) {
-          var up = (y & 1) === 1;                 /* alternate direction = less bias */
-          for (var xi = 0; xi < gw; xi++) {
-            x = up ? gw - 1 - xi : xi;
-            i = y * gw + x; v = m[i];
-            if (v === MAT.EMPTY || v === MAT.WOOD || v === MAT.STONE) continue;
-            below = (y < gh - 1) ? m[(y + 1) * gw + x] : MAT.STONE;
+      if (gone) { m[i] = MAT.EMPTY; return; }
+    }
 
-            if (v === MAT.FIRE) {
-              m[i] = Math.random() < 0.22 ? MAT.EMPTY : MAT.FIRE;
-              /* fire eats oil and wood, dies in water, makes steam */
-              for (var d = 0; d < 5; d++) {
-                var ax = x + (d === 1 ? 1 : d === 2 ? -1 : 0), ay = y + (d === 3 ? 1 : d === 4 ? -1 : 0);
-                if (ax < 0 || ay < 0 || ax >= gw || ay >= gh) continue;
-                var j = ay * gw + ax, n = m[j];
-                if (n === MAT.OIL || (n === MAT.WOOD && Math.random() < 0.02)) m[j] = MAT.FIRE;
-                if (n === MAT.WATER && Math.random() < 0.06) m[j] = MAT.STEAM;
-              }
-              continue;
-            }
-            if (v === MAT.STEAM) { m[i] = Math.random() < 0.03 ? MAT.WATER : MAT.EMPTY; continue; }
+    if (y + 1 < g.gh) {
+      j = i + g.gw;
+      if (sandCan(g, v, j)) { sandSwap(g, i, j); return; }
+    }
+    if (sandFloat(g, i, x, y)) return;
+    if (v === MAT.LAVA && Math.random() > 0.35) return;
+    dd = Math.random() < 0.5 ? -1 : 1;
+    for (t = 0; t < 2; t++, dd = -dd) {
+      nx = x + dd;
+      if (nx < 0 || nx >= g.gw) continue;
+      j = y * g.gw + nx;
+      if (sandEmpty(g, j)) { sandSwap(g, i, j); return; }
+    }
+  }
 
-            if (v === MAT.SAND || v === MAT.LAVA) {
-              if (below === MAT.EMPTY || below === MAT.WATER || below === MAT.OIL ||
-                  ((v === MAT.LAVA) && (below === MAT.SAND))) {
-                if (below === MAT.WATER && v === MAT.LAVA) { m[i] = MAT.STONE; m[(y + 1) * gw + x] = MAT.STEAM; continue; }
-                m[i] = below; m[(y + 1) * gw + x] = v; continue;
-              }
-              var dir = Math.random() < 0.5 ? -1 : 1;
-              for (var t = 0; t < 2; t++) {
-                var dd = t === 0 ? dir : -dir;
-                var nx = x + dd;
-                if (nx < 0 || nx >= gw || y + 1 >= gh) continue;
-                var nv = m[(y + 1) * gw + nx];
-                if (nv === MAT.EMPTY || nv === MAT.WATER || nv === MAT.OIL) {
-                  m[i] = nv; m[(y + 1) * gw + nx] = v; break;
-                }
-              }
-              if (v === MAT.LAVA && Math.random() < 0.02) {
-                for (var b = 0; b < 4; b++) {
-                  var bx = x + (b & 1 ? 1 : -1), by = y + (b & 2 ? 1 : -1);
-                  if (bx < 0 || by < 0 || bx >= gw || by >= gh) continue;
-                  var bj = by * gw + bx;
-                  if (m[bj] === MAT.WOOD || m[bj] === MAT.OIL) m[bj] = MAT.FIRE;
-                }
-              }
-              continue;
-            }
-
-            /* liquids: fall, then spread */
-            if (v === MAT.WATER || v === MAT.OIL) {
-              if (below === MAT.EMPTY) { m[i] = MAT.EMPTY; m[(y + 1) * gw + x] = v; continue; }
-              if (v === MAT.LAVA && below !== MAT.STONE) continue;
-              side = Math.random() < 0.5 ? -1 : 1;
-              var moved = false;
-              for (var q = 0; q < 2; q++) {
-                var sd = q === 0 ? side : -side;
-                var lx = x + sd;
-                if (lx < 0 || lx >= gw) continue;
-                var same = (y + 1 < gh) ? m[(y + 1) * gw + lx] : MAT.STONE;
-                var here = m[y * gw + lx];
-                if (same === MAT.EMPTY && (here === MAT.EMPTY || here === v || (v === MAT.OIL && here === MAT.WATER))) {
-                  m[(y + 1) * gw + lx] = v; m[i] = MAT.EMPTY; moved = true; break;
-                }
-                if (here === MAT.EMPTY) { m[y * gw + lx] = v; m[i] = MAT.EMPTY; moved = true; break; }
-              }
-              if (!moved && Math.random() < 0.06) { /* nothing. liquids are patient. */ }
-              if (v === MAT.WATER) {
-                for (var f = 0; f < 5; f++) {
-                  var fx = x + (f === 1 ? 1 : f === 2 ? -1 : 0), fy = y + (f === 3 ? 1 : f === 4 ? -1 : 0);
-                  if (fx < 0 || fy < 0 || fx >= gw || fy >= gh) continue;
-                  var fj = fy * gw + fx, fn = m[fj];
-                  if (fn === MAT.FIRE && Math.random() < 0.25) { m[fj] = MAT.STEAM; m[i] = Math.random() < 0.5 ? MAT.STEAM : MAT.EMPTY; }
-                  if (fn === MAT.LAVA) { m[fj] = MAT.STONE; }
-                }
-              }
-            }
+  /* things that do not move, but do things anyway */
+  function sandStatic(g, i, x, y) {
+    var m = g.m, v = m[i], j, k, t;
+    if (v === MAT.PLANT) {
+      j = sandHas(g, x, y, MAT.WATER);
+      if (j >= 0 && Math.random() < 0.05) {
+        var s0 = (Math.random() * 4) | 0;
+        for (k = 0; k < 4; k++) {
+          var q = sandNb(g, x, y, (s0 + k) & 3);
+          if (q >= 0 && m[q] === MAT.EMPTY) {
+            m[q] = MAT.PLANT; g.score++;
+            if (Math.random() < 0.5) m[j] = MAT.EMPTY;
+            break;
           }
         }
       }
-    },
-    draw: function (g, c) {
-      var cols = [];
-      cols[MAT.EMPTY] = "#0b0e14";
-      cols[MAT.SAND] = "#e8c46a";
-      cols[MAT.WATER] = "#2f6fd0";
-      cols[MAT.OIL] = "#2a2418";
-      cols[MAT.WOOD] = "#7a5230";
-      cols[MAT.FIRE] = "#ff7a1a";
-      cols[MAT.LAVA] = "#ff3b10";
-      cols[MAT.STONE] = "#5c6270";
-      cols[MAT.STEAM] = "#8fa8c0";
-      for (var y = 0; y < g.gh; y++) for (var x = 0; x < g.gw; x++) {
-        var v = g.m[y * g.gw + x];
-        if (v === MAT.EMPTY) continue;
-        c.fillStyle = cols[v];
-        c.fillRect(x * g.cell, y * g.cell, g.cell, g.cell);
+    } else if (v === MAT.ICE) {
+      if ((sandHas(g, x, y, MAT.FIRE) >= 0 || sandHas(g, x, y, MAT.LAVA) >= 0) && Math.random() < 0.03) {
+        m[i] = MAT.WATER; g.score++;
       }
-      /* brush + palette */
-      var names = ["SAND", "WATER", "OIL", "WOOD", "FIRE", "LAVA", "STONE", "ERASE"];
-      var order = [MAT.SAND, MAT.WATER, MAT.OIL, MAT.WOOD, MAT.FIRE, MAT.LAVA, MAT.STONE, MAT.EMPTY];
-      txt(c, names[order.indexOf(g.brush)], 6, 12, 10, cols[g.brush === MAT.EMPTY ? MAT.STONE : g.brush]);
-      txt(c, "CLICK TO CYCLE", g.w - 6, 12, 8, "#667", "right");
-      txt(c, "PAINT WITH THE MOUSE. RIGHT-CLICK ERASES.", 6, g.h - 6, 8, "#4a5a6a");
-    },
-    mouse: function (g, x, y, down, right) {
-      if (right) g.set(g, x, y, MAT.EMPTY);
-      else g.brushAt(g, x, y, down);
-    },
+    } else if (v === MAT.FAUCET) {
+      j = i + g.gw;
+      if (y + 1 < g.gh && m[j] === MAT.EMPTY && Math.random() < 0.5) m[j] = MAT.WATER;
+    } else if (v === MAT.DRAIN) {
+      for (k = 0; k < 4; k++) {
+        j = sandNb(g, x, y, k);
+        if (j < 0) continue;
+        t = m[j];
+        if (t === MAT.EMPTY || t === MAT.STONE || t === MAT.WOOD || t === MAT.ICE ||
+            t === MAT.FAUCET || t === MAT.DRAIN) continue;
+        if (Math.random() < 0.5) m[j] = MAT.EMPTY;
+      }
+    }
+  }
+
+  function sandStep(g) {
+    var gw = g.gw, gh = g.gh, m = g.m, st = g.stamp, T = ++g.tick, y, xi, x, i, v;
+    g.parity ^= 1;
+    /* bottom to top, alternating left and right, so nothing gets a free ride */
+    for (y = gh - 1; y >= 0; y--) {
+      var flip = ((y + g.parity) & 1) === 1;
+      for (xi = 0; xi < gw; xi++) {
+        x = flip ? gw - 1 - xi : xi;
+        i = y * gw + x;
+        if (st[i] === T) continue;
+        v = m[i];
+        if (v === MAT.EMPTY || v === MAT.STONE || v === MAT.WOOD) continue;
+        if (v === MAT.FIRE) sandFire(g, i, x, y);
+        else if (v === MAT.STEAM) sandSteam(g, i, x, y);
+        else if (v === MAT.SAND || v === MAT.ASH || v === MAT.GUNPOWDER) sandPowder(g, i, x, y);
+        else if (v === MAT.WATER || v === MAT.OIL || v === MAT.ACID || v === MAT.LAVA) sandLiquid(g, i, x, y);
+        else sandStatic(g, i, x, y);
+      }
+    }
+  }
+
+  /* painting. the mouse is read every frame, not only when it moves, so holding
+     still keeps painting, and a fast stroke is joined up instead of dotted. */
+  function sandDab(g, cx, cy) {
+    var r = g.size, ix = Math.round(cx), iy = Math.round(cy), v = SAND_PICK[g.sel].m;
+    if (g.btn === 2) v = MAT.EMPTY;   /* right button always erases */
+    for (var dy = -r; dy <= r; dy++) for (var dx = -r; dx <= r; dx++) {
+      if (dx * dx + dy * dy > r * r + r) continue;
+      var x = ix + dx, y = iy + dy;
+      if (x < 0 || y < 0 || x >= g.gw || y >= g.gh) continue;
+      g.m[y * g.gw + x] = v;
+    }
+  }
+  function sandPaint(g) {
+    if (!g.down || g.mx < SAND_PANEL || g.mx >= g.w || g.my < 0 || g.my >= g.h) { g.lx = null; return; }
+    var cx = (g.mx - SAND_PANEL) / g.cell, cy = g.my / g.cell;
+    if (g.lx == null) { g.lx = cx; g.ly = cy; }
+    var dx = cx - g.lx, dy = cy - g.ly;
+    var n = Math.min(60, Math.max(1, Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / Math.max(1, g.size * 0.5))));
+    for (var s = 0; s <= n; s++) sandDab(g, g.lx + dx * s / n, g.ly + dy * s / n);
+    g.lx = cx; g.ly = cy;
+  }
+
+  function sandRowAt(x, y) {
+    if (x >= SAND_PANEL || y < SAND_ROW0) return -1;
+    var row = Math.floor((y - SAND_ROW0) / SAND_ROWH);
+    return row < SAND_PICK.length ? row : -1;
+  }
+
+  function sandLandscape(g) {
+    var gw = g.gw, gh = g.gh;
+    g.m.fill(0);
+    /* a starter landscape: ground, a puddle, a little fire */
+    for (var x = 0; x < gw; x++) {
+      var hgt = gh - 6 - Math.round(Math.sin(x * 0.21) * 3 + Math.sin(x * 0.07) * 4);
+      for (var y = hgt; y < gh; y++) g.m[y * gw + x] = MAT.STONE;
+      for (var y2 = hgt - 2; y2 < hgt; y2++) g.m[y2 * gw + x] = MAT.SAND;
+    }
+    for (var i = 0; i < 3; i++) {
+      var cx = 20 + irnd(gw - 40), cy = 30 + irnd(40);
+      for (var dy = -6; dy <= 6; dy++) for (var dx = -8; dx <= 8; dx++) {
+        if (dx * dx / 64 + dy * dy / 36 < 1) g.m[(cy + dy) * gw + cx + dx] = i === 1 ? MAT.WATER : MAT.SAND;
+      }
+    }
+  }
+
+  function sandInit(g) {
+    g.cell = 4;
+    g.gw = Math.floor((g.w - SAND_PANEL) / g.cell);
+    g.gh = Math.floor(g.h / g.cell);
+    var n = g.gw * g.gh;
+    g.m = new Uint8Array(n);
+    g.stamp = new Uint32Array(n);
+    g.tick = 0; g.parity = 0;
+    /* the picture is drawn into a small canvas at grid size, then stretched */
+    g.vc = document.createElement("canvas");
+    g.vc.width = g.gw; g.vc.height = g.gh;
+    g.vctx = g.vc.getContext("2d");
+    g.img = g.vctx.createImageData(g.gw, g.gh);
+    g.px = new Uint32Array(g.img.data.buffer);
+    g.sel = 0; g.size = 3; g.paused = 0; g.acc = 0; g.lx = null;
+    sandLandscape(g);
+  }
+
+  function sandClear(g) { g.m.fill(0); }
+
+  function sandUpdate(g, dt) {
+    sandPaint(g);
+    if (g.paused) return;
+    /* the simulation runs at 45 ticks a second, whatever the frame rate is */
+    g.acc += dt;
+    var n = 0;
+    while (g.acc >= 1 / 45 && n < 2) { g.acc -= 1 / 45; sandStep(g); n++; }
+    if (g.acc > 1 / 45) g.acc = 0;
+  }
+
+  /* a per-cell scramble, so the shades look like grain and not like a grid */
+  function sandHash(i) {
+    var h = Math.imul(i ^ (i >>> 15), 0x85ebca6b);
+    h ^= h >>> 13;
+    return (Math.imul(h, 0xc2b2ae35) >>> 0) >>> 16;
+  }
+
+  function sandDraw(g, c) {
+    var m = g.m, px = g.px, n = g.gw * g.gh, i, v, shades, sel = SAND_PICK[g.sel];
+    for (i = 0; i < n; i++) {
+      v = m[i];
+      if (v === MAT.EMPTY) { px[i] = SAND_COL[0][0]; continue; }
+      shades = SAND_COL[v];
+      px[i] = shades[(v === MAT.FIRE || v === MAT.LAVA) ? (Math.random() * shades.length) | 0
+                                                          : sandHash(i) % shades.length];
+    }
+    g.vctx.putImageData(g.img, 0, 0);
+    c.imageSmoothingEnabled = false;
+    c.drawImage(g.vc, SAND_PANEL, 0, g.gw * g.cell, g.gh * g.cell);
+
+    /* the brush, as a ring under the cursor */
+    if (g.mx >= SAND_PANEL) {
+      c.strokeStyle = sel.m === MAT.EMPTY ? "#ffffff" : SAND_SHADES[sel.m][0];
+      c.lineWidth = 1;
+      c.beginPath(); c.arc(g.mx, g.my, (g.size + 0.5) * g.cell, 0, 6.2832); c.stroke();
+    }
+
+    /* the picker */
+    var hov = sandRowAt(g.mx, g.my);
+    rct(c, 0, 13, SAND_PANEL - 1, g.h - 13, "rgba(8,10,16,0.92)");
+    rct(c, SAND_PANEL - 1, 13, 1, g.h - 13, "#26344e");
+    for (var k = 0; k < SAND_PICK.length; k++) {
+      var p = SAND_PICK[k], y = SAND_ROW0 + k * SAND_ROWH;
+      if (k === g.sel) rct(c, 2, y, SAND_PANEL - 5, SAND_ROWH - 2, "#2a3d5e");
+      else if (k === hov) rct(c, 2, y, SAND_PANEL - 5, SAND_ROWH - 2, "#17202f");
+      if (p.m === MAT.EMPTY) { rct(c, 5, y + 3, 8, 8, "#0b0e14"); box(c, 5, y + 3, 8, 8, "#8892a8"); }
+      else rct(c, 5, y + 3, 8, 8, SAND_SHADES[p.m][0]);
+      txt(c, p.name, 16, y + 10, 8, k === g.sel ? "#ffffff" : "#9aa6b8");
+      if (p.key) txt(c, p.key, SAND_PANEL - 7, y + 10, 8, "#667a94", "right");
+    }
+
+    /* size, pause, clear */
+    txt(c, "SIZE", 5, SAND_SIZE_Y + 10, 8, "#9aa6b8");
+    rct(c, 44, SAND_SIZE_Y, 12, 12, "#1d2a42"); box(c, 44, SAND_SIZE_Y, 12, 12, "#3a4e72");
+    txt(c, "-", 50, SAND_SIZE_Y + 9, 9, "#ffffff", "center");
+    txt(c, String(g.size), 62, SAND_SIZE_Y + 9, 8, "#ffd94a", "center");
+    rct(c, 68, SAND_SIZE_Y, 12, 12, "#1d2a42"); box(c, 68, SAND_SIZE_Y, 12, 12, "#3a4e72");
+    txt(c, "+", 74, SAND_SIZE_Y + 9, 9, "#ffffff", "center");
+    rct(c, 4, SAND_BTN_Y, 36, 12, g.paused ? "#6a3d12" : "#1d2a42");
+    box(c, 4, SAND_BTN_Y, 36, 12, "#3a4e72");
+    txt(c, g.paused ? "PLAY" : "PAUSE", 22, SAND_BTN_Y + 9, 8, "#ffffff", "center");
+    rct(c, 44, SAND_BTN_Y, 36, 12, "#1d2a42");
+    box(c, 44, SAND_BTN_Y, 36, 12, "#3a4e72");
+    txt(c, "CLEAR", 62, SAND_BTN_Y + 9, 8, "#ffffff", "center");
+    txt(c, "1-0 / ARROWS PICK", 5, 287, 7, "#556680");
+    txt(c, "R NEW  C CLEAR", 5, 296, 7, "#556680");
+
+    /* the description bar: what you are hovering, or what you have */
+    var info = hov >= 0 ? SAND_PICK[hov] : sel;
+    rct(c, SAND_PANEL, g.h - 13, g.w - SAND_PANEL, 13, "rgba(0,0,0,0.6)");
+    txt(c, info.name + "  " + info.desc, SAND_PANEL + 4, g.h - 4, 7, "#c8d0dc");
+
+    if (g.paused) {
+      var cxp = SAND_PANEL + (g.w - SAND_PANEL) / 2;
+      rct(c, cxp - 44, g.h / 2 - 12, 88, 24, "rgba(0,0,0,0.75)");
+      txt(c, "PAUSED", cxp, g.h / 2 + 4, 12, "#ffd94a", "center");
+    }
+  }
+
+  function sandTap(g, x, y) {
+    if (x >= SAND_PANEL) return;
+    var row = sandRowAt(x, y);
+    if (row >= 0) { g.sel = row; return; }
+    if (y >= SAND_SIZE_Y && y < SAND_SIZE_Y + 12) {
+      if (x >= 44 && x < 56) g.size = clamp(g.size - 1, 1, SAND_MAXSIZE);
+      else if (x >= 68 && x < 80) g.size = clamp(g.size + 1, 1, SAND_MAXSIZE);
+    } else if (y >= SAND_BTN_Y && y < SAND_BTN_Y + 12) {
+      if (x < 40) g.paused = g.paused ? 0 : 1;
+      else sandClear(g);
+    }
+  }
+
+  function sandKey(g, k) {
+    var n = SAND_PICK.length;
+    if (k === "0") g.sel = 9;
+    else if (k.length === 1 && k >= "1" && k <= "9") g.sel = +k - 1;
+    else if (k === "e") g.sel = n - 1;
+    else if (k === "arrowup") g.sel = (g.sel + n - 1) % n;
+    else if (k === "arrowdown") g.sel = (g.sel + 1) % n;
+    else if (k === "[" || k === "-") g.size = clamp(g.size - 1, 1, SAND_MAXSIZE);
+    else if (k === "]" || k === "=" || k === "+") g.size = clamp(g.size + 1, 1, SAND_MAXSIZE);
+    else if (k === " " || k === "p") g.paused = g.paused ? 0 : 1;
+    else if (k === "c") sandClear(g);
+    else if (k === "r") { sandLandscape(g); g.score = 0; }
+  }
+
+  var gSand = {
+    id: "sand", name: "FALLING SAND", year: "2005", w: 480, h: 300,
+    desc: "fourteen kinds of pixel. pour them, light them, freeze them. it is enough for an hour.",
+    init: sandInit,
+    update: sandUpdate,
+    draw: sandDraw,
+    tap: sandTap,
+    key: sandKey,
     score: 0
   };
 
@@ -1664,7 +1969,7 @@
     g.id = def.id;
     g.w = def.w; g.h = def.h;
     g.score = 0; g.bestNow = 0;
-    g.mx = g.w / 2; g.my = g.h / 2; g.down = false;
+    g.mx = g.w / 2; g.my = g.h / 2; g.down = false; g.btn = 0;
     g.keys = {};
     g.t = 0;
     return g;
@@ -1821,13 +2126,13 @@
       var r = cv.getBoundingClientRect();
       var x = (e.clientX - r.left) / r.width * VW;
       var y = (e.clientY - r.top) / r.height * VH;
-      P.g.down = 1; P.g.mx = x; P.g.my = y;
+      P.g.down = 1; P.g.btn = e.button; P.g.mx = x; P.g.my = y;
       if (P.g.press) P.g.press(P.g, x, y);
       if (P.g.tap) P.g.tap(P.g, x, y);
     });
     window.addEventListener("mouseup", function () {
       if (!P.g) return;
-      P.g.down = 0;
+      P.g.down = 0; P.g.btn = 0;
       if (P.g.release) P.g.release(P.g, P.g.mx, P.g.my);
     });
     window.addEventListener("mousemove", function (e) {
@@ -1939,7 +2244,6 @@
     if (!canvas) return;
     var def = DEFS[i];
     var g = blank(def);
-    g.w = 160; g.h = 100;
     try { g.init(g); } catch (e) { return; }
     for (var s = 0; s < 30; s++) { try { g.update(g, 1 / 30); } catch (e) {} }
     var c = canvas.getContext("2d");
@@ -1964,7 +2268,6 @@
     var g = liveThumbs[i];
     if (!g) {
       g = blank(def);
-      g.w = 160; g.h = 100;
       try { g.init(g); } catch (e) { liveThumbs[i] = false; return; }
       liveThumbs[i] = g;
       for (var w = 0; w < 30; w++) { try { g.update(g, 1 / 30); } catch (e) {} }

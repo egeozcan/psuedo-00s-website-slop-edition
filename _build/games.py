@@ -1156,7 +1156,7 @@ page("flash.html", "THE FLASH ERA - funnysite",
       <table width="100%" cellpadding="4" cellspacing="0" class="bev">
         <tr class="titlebar"><td>GAME</td><td>ERA</td><td>WHAT IT REMEMBERS</td></tr>
         <tr class="bev-in"><td><b>FALLING SAND</b></td><td class="mono">2005</td>
-          <td class="small">sand, water, oil, fire, lava, steam. eight kinds of pixel. you will lose an hour to it.</td></tr>
+          <td class="small">sand, water, oil, fire, lava, ice, gunpowder, acid, a faucet and a drain. fourteen kinds of pixel. you will lose an hour to it.</td></tr>
         <tr><td><b>LINE RIDER</b></td><td class="mono">2006</td>
           <td class="small">draw a line. the rider rides it. the rider does not care whether you drew a good line.</td></tr>
         <tr class="bev-in"><td><b>BLOXORZ</b></td><td class="mono">2008</td>

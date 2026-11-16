@@ -200,6 +200,17 @@
     return g.stamp[j] !== g.tick &&
            (t === MAT.EMPTY || (SAND_FREE[t] === 1 && SAND_DENS[t] < SAND_DENS[src]));
   }
+  /* a stone touching this cell, that is itself touching lava */
+  function sandHeatedStone(g, x, y) {
+    for (var k = 0; k < 4; k++) {
+      var j = sandNb(g, x, y, k);
+      if (j >= 0 && g.m[j] === MAT.STONE) {
+        var sx = j % g.gw, sy = (j / g.gw) | 0;
+        if (sandHas(g, sx, sy, MAT.LAVA) >= 0) return true;
+      }
+    }
+    return false;
+  }
   function sandEmpty(g, j) { return g.m[j] === MAT.EMPTY && g.stamp[j] !== g.tick; }
   /* swap two cells. both of them have now had their turn this tick, so neither
      the thing that moved nor the thing it displaced may move again */
@@ -249,7 +260,8 @@
 
   function sandSteam(g, i, x, y) {
     var m = g.m, j, t, nx, dd;
-    if (Math.random() < 0.02) { m[i] = MAT.WATER; return; }   /* it rains, eventually */
+    /* it rains, eventually. but not on lava: that would cool it into a crust */
+    if (Math.random() < 0.02 && sandHas(g, x, y, MAT.LAVA) < 0) { m[i] = MAT.WATER; return; }
     if (y === 0) return;
     j = sandNb(g, x, y, 0);
     if (j >= 0 && sandEmpty(g, j)) { sandSwap(g, i, j); return; }
@@ -364,9 +376,12 @@
         }
       }
     } else if (v === MAT.ICE) {
-      if ((sandHas(g, x, y, MAT.FIRE) >= 0 || sandHas(g, x, y, MAT.LAVA) >= 0) && Math.random() < 0.03) {
-        m[i] = MAT.WATER; g.score++;
-      }
+      /* lava takes ice away outright. any water or steam it left behind would rain back
+         onto the lava and cool it into a stone lid. stone conducts: lava heats the stone
+         next to it, and that stone heats the ice, so a crust slows the melt but does not stop it. */
+      if (sandHas(g, x, y, MAT.LAVA) >= 0 && Math.random() < 0.03) { m[i] = MAT.EMPTY; g.score++; }
+      else if (sandHas(g, x, y, MAT.FIRE) >= 0 && Math.random() < 0.03) { m[i] = MAT.WATER; g.score++; }
+      else if (sandHeatedStone(g, x, y) && Math.random() < 0.01) { m[i] = MAT.EMPTY; g.score++; }
     } else if (v === MAT.FAUCET) {
       j = i + g.gw;
       if (y + 1 < g.gh && m[j] === MAT.EMPTY && Math.random() < 0.5) m[j] = MAT.WATER;
